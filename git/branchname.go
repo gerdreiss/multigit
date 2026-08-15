@@ -78,3 +78,23 @@ func getDefaultLocalBranchName(repo *git.Repository) (string, error) {
 
 	return "", fmt.Errorf("could not determine default branch")
 }
+
+// getLocalBranchNames returns the names of all local braches
+func getLocalBranchNames(repo *git.Repository, except string) ([]string, error) {
+	var branchNames []string
+
+	branches, err := repo.Branches()
+	if err != nil {
+		return branchNames, err
+	}
+
+	_ = branches.ForEach(func(ref *plumbing.Reference) error {
+		branchName := ref.Name().Short()
+		if branchName != except {
+			branchNames = append(branchNames, branchName)
+		}
+		return nil
+	})
+
+	return branchNames, nil
+}

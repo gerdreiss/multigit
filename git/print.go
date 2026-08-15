@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gerdreiss/mgit/helpers"
 	"github.com/go-git/go-git/v5"
@@ -16,7 +17,7 @@ const red = "\033[31m"
 const green = "\033[32m"
 const reset = "\033[0m"
 
-func PrintRepoWithBranchName(repoPath string) error {
+func PrintRepoWithBranchName(repoPath string, listLocalBranches bool) error {
 	repoName := filepath.Base(repoPath)
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
@@ -56,6 +57,29 @@ func PrintRepoWithBranchName(repoPath string) error {
 		helpers.IfElse(status.IsClean(), "", "*"),
 		reset,
 	)
+
+	var branches []string
+	if listLocalBranches {
+		branches, err = getLocalBranchNames(repo, branch)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "❌ Failed to determine the local branches for %s: %v\n", repoName, err)
+			branches = []string{}
+		}
+		if len(branches) > 0 {
+			spaces := strings.Repeat(" ", len(repoPath)-3)
+			for _, branch := range branches {
+				fmt.Printf(
+					"%s -- %s[%s%s%s]%s\n",
+					spaces,
+					red,
+					green,
+					branch,
+					red,
+					reset,
+				)
+			}
+		}
+	}
 
 	return nil
 }

@@ -30,9 +30,17 @@ func listRepos(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	exe.ListAll(rootDir)
+	branches, err := cmd.Flags().GetBool("branches")
+	if err != nil {
+		fmt.Printf("❌ 'branches' flag of indeterminate value - using default value: %v\n", err)
+		branches = false
+	}
+
+	exe.ListAll(rootDir, branches)
 }
 
 func init() {
 	rootCmd.AddCommand(listCmd)
+
+	listCmd.Flags().BoolP("branches", "b", false, "List all local branches.")
 }
