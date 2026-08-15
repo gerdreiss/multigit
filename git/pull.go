@@ -19,25 +19,25 @@ func GitPullWithOptions(repoPath string, opts *PullOptions) error {
 	// Open the repository
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ failed to open repository %s: %v", repoName, err)
+		fmt.Fprintf(os.Stderr, "❌ failed to open repository %s: %v\n", repoName, err)
 		return nil
 	}
 
 	currentBranchName, err := getCurrentBranchName(repo)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ failed to get the current branch name for %s: %v", repoName, err)
+		fmt.Fprintf(os.Stderr, "❌ failed to get the current branch name for %s: %v\n", repoName, err)
 		return nil
 	}
 
 	if opts.Default {
 		defaultBranchName, err := getDefaultBranchName(repo)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "❌ failed to get the default branch name for %s: %v", repoName, err)
+			fmt.Fprintf(os.Stderr, "❌ failed to get the default branch name for %s: %v\n", repoName, err)
 			return nil
 		}
 		if currentBranchName != defaultBranchName {
 			if err := checkoutBranch(repo, defaultBranchName, opts.Force); err != nil {
-				fmt.Fprintf(os.Stderr, "❌ failed to check out the default branch name of %s: %v", repoName, err)
+				fmt.Fprintf(os.Stderr, "❌ failed to check out the default branch name of %s: %v\n", repoName, err)
 				return nil
 			}
 			currentBranchName = defaultBranchName
@@ -47,14 +47,14 @@ func GitPullWithOptions(repoPath string, opts *PullOptions) error {
 	// Get the worktree
 	worktree, err := repo.Worktree()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ failed to get worktree of %s: %v", repoName, err)
+		fmt.Fprintf(os.Stderr, "❌ failed to get worktree of %s: %v\n", repoName, err)
 		return nil
 	}
 
 	// Check for uncommitted changes
 	status, err := worktree.Status()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ failed to get status of %s: %v", repoName, err)
+		fmt.Fprintf(os.Stderr, "❌ failed to get status of %s: %v\n", repoName, err)
 		return nil
 	}
 
@@ -86,7 +86,7 @@ func GitPullWithOptions(repoPath string, opts *PullOptions) error {
 			fmt.Printf("✅ %s already up-to-date\n", repoName)
 			return nil
 		}
-		fmt.Fprintf(os.Stderr, "❌ failed to pull the latest changes for %s: %v", repoName, err)
+		fmt.Fprintf(os.Stderr, "❌ failed to pull the latest changes for %s: %v\n", repoName, err)
 		return nil
 	}
 
