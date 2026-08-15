@@ -10,8 +10,12 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 )
 
-func PurgeLocalBranches(repoPath string, opts *PullOptions) error {
+func PurgeLocalBranches(repoPath string, exclude []string, opts *PullOptions) error {
 	repoName := filepath.Base(repoPath)
+	if slices.Contains(exclude, repoName) {
+		return nil
+	}
+
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "❌ failed to open repo %s: %v\n", repoName, err)

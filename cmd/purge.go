@@ -28,9 +28,17 @@ func purgeLocalBranches(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	exe.PurgeLocalBranches(rootDir)
+	exclude, err := cmd.Flags().GetStringSlice("exclude")
+	if err != nil {
+		fmt.Println("⚠️ 'exclude' flag of indeterminate value - using default value")
+		exclude = []string{}
+	}
+
+	exe.PurgeLocalBranches(rootDir, exclude)
 }
 
 func init() {
 	rootCmd.AddCommand(purgeCmd)
+
+	pullCmd.Flags().StringSliceP("exclude", "x", []string{}, "Exclude the repositories with the names given here from purging.")
 }

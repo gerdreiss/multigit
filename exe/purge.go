@@ -8,7 +8,7 @@ import (
 	"github.com/gerdreiss/mgit/git"
 )
 
-func PurgeLocalBranches(rootDir string) {
+func PurgeLocalBranches(rootDir string, exclude []string) {
 	err := filepath.Walk(rootDir, func(repoPath string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -23,7 +23,7 @@ func PurgeLocalBranches(rootDir string) {
 		}
 
 		if i.IsDir() {
-			return git.PurgeLocalBranches(repoPath, git.DefaultPullOptions())
+			return git.PurgeLocalBranches(repoPath, exclude, git.DefaultPullOptions())
 		}
 
 		return nil
