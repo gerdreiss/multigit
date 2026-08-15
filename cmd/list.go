@@ -17,14 +17,12 @@ var listCmd = &cobra.Command{
 	Use:   "list  [directory]",
 	Short: "Lists GIT reposities with their currently checked out branches in the given directory.",
 	Long:  "Lists GIT reposities with their currently checked out branches in the given directory.",
-	Args:  cobra.MinimumNArgs(1),
+	Args:  cobra.ExactArgs(1),
 	Run:   listRepos,
 }
 
 func listRepos(cmd *cobra.Command, args []string) {
-	dirname := helpers.IfElse(len(args) > 0, args[0], ".")
-
-	rootDir, err := filepath.Abs(dirname)
+	rootDir, err := filepath.Abs(helpers.IfElse(len(args) > 0, args[0], "."))
 	if err != nil {
 		fmt.Printf("❌ Error determining root directory: %v\n", err)
 		return

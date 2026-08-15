@@ -12,7 +12,7 @@ import (
 	"github.com/gerdreiss/mgit/git"
 )
 
-func PullAll(rootDir string, checkoutDefault bool, force bool, exclude []string) {
+func PullRepos(rootDir string, checkoutDefault bool, force bool, exclude []string) {
 	err := filepath.Walk(rootDir, func(repoPath string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err

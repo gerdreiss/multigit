@@ -17,10 +17,11 @@ var pullCmd = &cobra.Command{
 	Use:   "pull",
 	Short: "Executes git pull in all git repositories in the given directory",
 	Long:  "Executes git pull in all git repositories in the given directory",
-	Run:   PullAll,
+	Args:  cobra.ExactArgs(1),
+	Run:   pullAll,
 }
 
-func PullAll(cmd *cobra.Command, args []string) {
+func pullAll(cmd *cobra.Command, args []string) {
 	rootDir, err := filepath.Abs(helpers.IfElse(len(args) > 0, args[0], "."))
 	if err != nil {
 		fmt.Printf("❌ Error determining root directory: %v\n", err)
@@ -45,7 +46,7 @@ func PullAll(cmd *cobra.Command, args []string) {
 		exclude = []string{}
 	}
 
-	exe.PullAll(rootDir, checkoutDefault, force, exclude)
+	exe.PullRepos(rootDir, checkoutDefault, force, exclude)
 }
 
 func init() {

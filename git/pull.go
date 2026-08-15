@@ -59,7 +59,7 @@ func GitPullWithOptions(repoPath string, opts *PullOptions) error {
 	}
 
 	if !status.IsClean() && !opts.Force {
-		fmt.Fprintf(os.Stderr, "❌ uncommitted changes present in %s (use Force=true to override)", repoName)
+		fmt.Fprintf(os.Stderr, "❌ uncommitted changes present in %s (use Force=true to override)\n", repoName)
 		return nil
 	}
 

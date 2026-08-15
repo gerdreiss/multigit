@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/gerdreiss/mgit/helpers"
@@ -39,8 +40,8 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool) error {
 		return nil
 	}
 
-	// Get current branch name
-	branch, err := getCurrentBranchName(repo)
+	// Get current currentBranch name
+	currentBranch, err := getCurrentBranchName(repo)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "❌ Failed to determine the current branch name for %s: %v\n", repoName, err)
 		return nil
@@ -52,22 +53,22 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool) error {
 		repoPath,
 		red,
 		green,
-		branch,
+		currentBranch,
 		red,
 		helpers.IfElse(status.IsClean(), "", "*"),
 		reset,
 	)
 
-	var branches []string
 	if listLocalBranches {
-		branches, err = getLocalBranchNames(repo, branch)
+		localBranches, err := getLocalBranchNames(repo)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "❌ Failed to determine the local branches for %s: %v\n", repoName, err)
-			branches = []string{}
+			localBranches = []string{}
 		}
-		if len(branches) > 0 {
+		localBranches = slices.DeleteFunc(localBranches, func(b string) bool { return b == currentBranch })
+		if len(localBranches) > 0 {
 			spaces := strings.Repeat(" ", len(repoPath)-3)
-			for _, branch := range branches {
+			for _, branch := range localBranches {
 				fmt.Printf(
 					"%s -- %s[%s%s%s]%s\n",
 					spaces,

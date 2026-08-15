@@ -80,7 +80,7 @@ func getDefaultLocalBranchName(repo *git.Repository) (string, error) {
 }
 
 // getLocalBranchNames returns the names of all local braches
-func getLocalBranchNames(repo *git.Repository, except string) ([]string, error) {
+func getLocalBranchNames(repo *git.Repository) ([]string, error) {
 	var branchNames []string
 
 	branches, err := repo.Branches()
@@ -89,12 +89,35 @@ func getLocalBranchNames(repo *git.Repository, except string) ([]string, error) 
 	}
 
 	_ = branches.ForEach(func(ref *plumbing.Reference) error {
-		branchName := ref.Name().Short()
-		if branchName != except {
-			branchNames = append(branchNames, branchName)
-		}
+		branchNames = append(branchNames, ref.Name().Short())
 		return nil
 	})
+
+	return branchNames, nil
+}
+
+func getRemoteBranchNames(repo *git.Repository, remoteName string) ([]string, error) {
+	// Get the remote
+	remote, err := repo.Remote(remoteName)
+	if err != nil {
+		return []string{}, fmt.Errorf("failed to get remote '%s': %w", remoteName, err)
+	}
+
+	// List remote references
+	refs, err := remote.List(&git.ListOptions{})
+	if err != nil {
+		return []string{}, fmt.Errorf("failed to list remote references: %w", err)
+	}
+
+	var branchNames []string
+	for _, ref := range refs {
+		// Filter only branch references (not tags, not HEAD)
+		if ref.Name().IsBranch() {
+			// Get the branch name without the remote prefix
+			// e.g., "refs/remotes/origin/main" -> "main"
+			branchNames = append(branchNames, ref.Name().Short())
+		}
+	}
 
 	return branchNames, nil
 }
