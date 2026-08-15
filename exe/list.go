@@ -27,9 +27,9 @@ func ListAll(rootDir string) {
 
 		if i.IsDir() {
 			return git.PrintRepoWithBranchName(repoPath)
-		} else {
-			return nil
 		}
+
+		return nil
 	})
 
 	if err != nil {

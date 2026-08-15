@@ -5,6 +5,7 @@ package git
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/gerdreiss/mgit/helpers"
@@ -19,26 +20,32 @@ func PrintRepoWithBranchName(repoPath string) error {
 	repoName := filepath.Base(repoPath)
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
-		return fmt.Errorf("failed to open repo: %w", err)
+		fmt.Fprintf(os.Stderr, "❌ failed to open repo %s: %v\n", repoName, err)
+		return nil
 	}
 
 	// Get the worktree
 	worktree, err := repo.Worktree()
 	if err != nil {
-		return fmt.Errorf("%s - failed to get worktree: %w", repoName, err)
+		fmt.Fprintf(os.Stderr, "❌ failed to get worktree of %s: %v\n", repoName, err)
+		return nil
 	}
 
 	// Check for uncommitted changes
 	status, err := worktree.Status()
 	if err != nil {
-		return fmt.Errorf("%s - failed to get status: %w", repoName, err)
+		fmt.Fprintf(os.Stderr, "❌ failed to get status of %s: %v\n", repoName, err)
+		return nil
 	}
 
+	// Get current branch name
 	branch, err := getCurrentBranchName(repo)
 	if err != nil {
-		return fmt.Errorf("Failed to determine the current branch name for %s: %v", repoName, err)
+		fmt.Fprintf(os.Stderr, "❌ Failed to determine the current branch name for %s: %v\n", repoName, err)
+		return nil
 	}
 
+	// Print out all the info
 	fmt.Printf(
 		"%s %s[%s%s%s%s]%s\n",
 		repoPath,
@@ -49,5 +56,6 @@ func PrintRepoWithBranchName(repoPath string) error {
 		helpers.IfElse(status.IsClean(), "", "*"),
 		reset,
 	)
+
 	return nil
 }

@@ -19,22 +19,26 @@ func GitPullWithOptions(repoPath string, opts *PullOptions) error {
 	// Open the repository
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
-		return fmt.Errorf("%s - failed to open repository: %w", repoName, err)
+		fmt.Fprintf(os.Stderr, "❌ failed to open repository %s: %v", repoName, err)
+		return nil
 	}
 
 	currentBranchName, err := getCurrentBranchName(repo)
 	if err != nil {
-		return fmt.Errorf("%s - failed to get the current branch name: %w", repoName, err)
+		fmt.Fprintf(os.Stderr, "❌ failed to get the current branch name for %s: %v", repoName, err)
+		return nil
 	}
 
 	if opts.Default {
 		defaultBranchName, err := getDefaultBranchName(repo)
 		if err != nil {
-			return fmt.Errorf("%s - failed to get the default branch name: %w", repoName, err)
+			fmt.Fprintf(os.Stderr, "❌ failed to get the default branch name for %s: %v", repoName, err)
+			return nil
 		}
 		if currentBranchName != defaultBranchName {
 			if err := checkoutBranch(repo, defaultBranchName, opts.Force); err != nil {
-				return fmt.Errorf("%s - failed to check out the default branch name: %w", repoName, err)
+				fmt.Fprintf(os.Stderr, "❌ failed to check out the default branch name of %s: %v", repoName, err)
+				return nil
 			}
 			currentBranchName = defaultBranchName
 		}
@@ -43,17 +47,20 @@ func GitPullWithOptions(repoPath string, opts *PullOptions) error {
 	// Get the worktree
 	worktree, err := repo.Worktree()
 	if err != nil {
-		return fmt.Errorf("%s - failed to get worktree: %w", repoName, err)
+		fmt.Fprintf(os.Stderr, "❌ failed to get worktree of %s: %v", repoName, err)
+		return nil
 	}
 
 	// Check for uncommitted changes
 	status, err := worktree.Status()
 	if err != nil {
-		return fmt.Errorf("%s - failed to get status: %w", repoName, err)
+		fmt.Fprintf(os.Stderr, "❌ failed to get status of %s: %v", repoName, err)
+		return nil
 	}
 
 	if !status.IsClean() && !opts.Force {
-		return fmt.Errorf("%s - uncommitted changes present in (use Force=true to override)", repoName)
+		fmt.Fprintf(os.Stderr, "❌ uncommitted changes present in %s (use Force=true to override)", repoName)
+		return nil
 	}
 
 	// Prepare pull options
@@ -79,7 +86,8 @@ func GitPullWithOptions(repoPath string, opts *PullOptions) error {
 			fmt.Printf("✅ %s already up-to-date\n", repoName)
 			return nil
 		}
-		return fmt.Errorf("%s failed to pull: %w", repoName, err)
+		fmt.Fprintf(os.Stderr, "❌ failed to pull the latest changes for %s: %v", repoName, err)
+		return nil
 	}
 
 	fmt.Printf("✅ %s pull successful\n", repoName)
