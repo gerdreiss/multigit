@@ -56,5 +56,6 @@ Usage:
   mgit purge [flags]
 
 Flags:
-  -h, --help   help for purge
+  -x, --exclude strings   Exclude the repositories with the names given here from purging.
+  -h, --help              help for purge
 ```
