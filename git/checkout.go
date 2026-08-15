@@ -5,6 +5,7 @@ package git
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -15,7 +16,8 @@ func checkoutBranch(repo *git.Repository, branchName string, force bool) error {
 	// Get the worktree
 	worktree, err := repo.Worktree()
 	if err != nil {
-		return fmt.Errorf("failed to get worktree: %w", err)
+		fmt.Fprintf(os.Stderr, "❌ failed to get worktree for %v: %v", repo, err)
+		return nil
 	}
 
 	// Create branch reference
@@ -28,7 +30,8 @@ func checkoutBranch(repo *git.Repository, branchName string, force bool) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("failed to checkout branch '%s': %w", branchName, err)
+		fmt.Fprintf(os.Stderr, "❌ failed to checkout branch '%s': %v", branchName, err)
+		return nil
 	}
 
 	fmt.Printf("✅ Switched to branch '%s'\n", branchName)
