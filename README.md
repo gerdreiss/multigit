@@ -22,7 +22,8 @@ Usage:
   mgit list  [directory] [flags]
 
 Flags:
-  -h, --help   help for list
+  -b, --branches   List all local branches.
+  -h, --help       help for list
 ```
 ```
 Executes git pull in all git repositories in the given directory
