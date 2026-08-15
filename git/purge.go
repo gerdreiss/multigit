@@ -7,6 +7,7 @@ import (
 	"slices"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 )
 
 func PurgeLocalBranches(repoPath string, opts *PullOptions) error {
@@ -40,12 +41,15 @@ func PurgeLocalBranches(repoPath string, opts *PullOptions) error {
 		if slices.Contains(remoteBranches, localBranch) {
 			continue
 		}
-		err = repo.DeleteBranch(localBranch)
-		if err == nil {
-			fmt.Printf("✅ branch %s of repository %s deleted successfully\n", localBranch, repoName)
-		} else {
-			fmt.Fprintf(os.Stderr, "❌ Failed to delete branch %s of repository %s\n", localBranch, repoName)
+
+		branchRef := plumbing.NewBranchReferenceName(localBranch)
+		err = repo.Storer.RemoveReference(branchRef)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "❌ Failed to delete branch %s of repository %s: %v\n", localBranch, repoName, err)
+			return nil
 		}
+
+		fmt.Printf("✅ branch %s of repository %s deleted successfully\n", localBranch, repoName)
 	}
 
 	return nil
