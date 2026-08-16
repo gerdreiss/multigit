@@ -16,9 +16,11 @@ import (
 
 const red = "\033[31m"
 const green = "\033[32m"
+const blue = "\033[34m"
+const grey = "\033[90m"
 const reset = "\033[0m"
 
-func PrintRepoWithBranchName(repoPath string, listLocalBranches bool) error {
+func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, remoteName string) error {
 	repoName := filepath.Base(repoPath)
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
@@ -47,15 +49,23 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool) error {
 		return nil
 	}
 
+	remoteBranches, err := getRemoteBranchNames(repo, remoteName)
+	if err != nil {
+		remoteBranches = []string{}
+	}
+
 	// Print out all the info
 	fmt.Printf(
-		"%s %s[%s%s%s%s]%s\n",
+		"%s %s[%s%s%s%s][%s%s%s]%s\n",
 		repoPath,
 		red,
 		green,
 		currentBranch,
 		red,
 		helpers.IfElse(status.IsClean(), "", "*"),
+		helpers.IfElse(slices.Contains(remoteBranches, currentBranch), blue, grey),
+		helpers.IfElse(slices.Contains(remoteBranches, currentBranch), remoteName+"/"+currentBranch, "untracked"),
+		red,
 		reset,
 	)
 
@@ -67,14 +77,17 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool) error {
 		}
 		localBranches = slices.DeleteFunc(localBranches, func(b string) bool { return b == currentBranch })
 		if len(localBranches) > 0 {
-			spaces := strings.Repeat(" ", len(repoPath)-3)
-			for _, branch := range localBranches {
+			for _, localBranch := range localBranches {
+				spaces := strings.Repeat(" ", len(repoPath)-len(localBranch)+len(currentBranch)+helpers.IfElse(status.IsClean(), 1, 2))
 				fmt.Printf(
-					"%s -- %s[%s%s%s]%s\n",
+					"%s%s[%s%s%s][%s%s%s]%s\n",
 					spaces,
 					red,
 					green,
-					branch,
+					localBranch,
+					red,
+					helpers.IfElse(slices.Contains(remoteBranches, localBranch), blue, grey),
+					helpers.IfElse(slices.Contains(remoteBranches, localBranch), remoteName+"/"+localBranch, "untracked"),
 					red,
 					reset,
 				)

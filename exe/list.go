@@ -11,7 +11,7 @@ import (
 	"github.com/gerdreiss/mgit/git"
 )
 
-func ListAll(rootDir string, branches bool) {
+func ListAll(rootDir string, branches bool, opts *git.PullOptions) {
 	err := filepath.Walk(rootDir, func(repoPath string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -26,7 +26,7 @@ func ListAll(rootDir string, branches bool) {
 		}
 
 		if i.IsDir() {
-			return git.PrintRepoWithBranchName(repoPath, branches)
+			return git.PrintRepoWithBranchName(repoPath, branches, opts.RemoteName)
 		}
 
 		return nil
