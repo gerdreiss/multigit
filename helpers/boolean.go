@@ -10,3 +10,10 @@ func IfElse[T any](cond bool, ifTrue T, ifFalse T) T {
 		return ifFalse
 	}
 }
+
+func IfElseLazy[T any](cond bool, ifTrue func() T, ifFalse func() T) T {
+	if cond {
+		return ifTrue()
+	}
+	return ifFalse()
+}
