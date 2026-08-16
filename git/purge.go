@@ -37,8 +37,7 @@ func PurgeLocalBranches(repoPath string, exclude []string, opts *PullOptions) er
 
 	remoteBranches, err := getRemoteBranchNames(repo, opts.RemoteName)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ Failed to determine the remote branches for %s: %v\n", repoName, err)
-		localBranches = []string{}
+		remoteBranches = []string{}
 	}
 
 	for _, localBranch := range slices.DeleteFunc(localBranches, func(b string) bool { return b == currentBranch }) {
