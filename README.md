@@ -51,6 +51,7 @@ Flags:
   -h, --help              help for pull
 ```
 ## mgit purge
+$${\color{red}Careful! \space This \space will \space delete \space local \space branches - \space make \space sure \space you \space really \space want \space that!}$$
 ```
 Delete all local branches in all git repositories in the given directory that don't have a corresponding remote branch
 
