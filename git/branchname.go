@@ -22,7 +22,7 @@ func getCurrentBranchName(repo *git.Repository) (string, error) {
 		return head.Name().Short(), nil
 	}
 
-	return "", fmt.Errorf("Couldn't determine current branch name for repo %v", repo)
+	return "", fmt.Errorf("couldn't determine current branch name for repo %v", repo)
 }
 
 // getDefaultBranchName determines the default branch of the repository

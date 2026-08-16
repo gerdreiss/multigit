@@ -31,7 +31,6 @@ func ListAll(rootDir string, branches bool, opts *git.PullOptions) {
 
 		return nil
 	})
-
 	if err != nil {
 		fmt.Printf("❌ Error listing GIT repositories in %q, %v\n", rootDir, err)
 	}

@@ -31,7 +31,6 @@ func PurgeLocalBranches(rootDir string, exclude []string) {
 
 		return nil
 	})
-
 	if err != nil {
 		fmt.Printf("❌ Error purging local branches in GIT repositories in %q, %v\n", rootDir, err)
 	}

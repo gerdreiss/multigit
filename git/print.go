@@ -14,11 +14,13 @@ import (
 	"github.com/go-git/go-git/v5"
 )
 
-const red = "\033[31m"
-const green = "\033[32m"
-const blue = "\033[34m"
-const grey = "\033[90m"
-const reset = "\033[0m"
+const (
+	red   = "\033[31m"
+	green = "\033[32m"
+	blue  = "\033[34m"
+	grey  = "\033[90m"
+	reset = "\033[0m"
+)
 
 func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, remoteName string) error {
 	repoName := filepath.Base(repoPath)

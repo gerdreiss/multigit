@@ -80,7 +80,6 @@ func GitPullWithOptions(repoPath string, opts *PullOptions) error {
 
 	// Perform the pull
 	err = worktree.Pull(pullOpts)
-
 	if err != nil {
 		if err == git.NoErrAlreadyUpToDate {
 			fmt.Printf("✅ %s already up-to-date\n", repoName)

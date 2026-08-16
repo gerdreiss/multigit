@@ -28,7 +28,6 @@ func checkoutBranch(repo *git.Repository, branchName string, force bool) error {
 		Branch: branchRef,
 		Force:  force,
 	})
-
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "❌ failed to checkout branch '%s': %v\n", branchName, err)
 		return nil

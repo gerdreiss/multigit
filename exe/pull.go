@@ -36,7 +36,6 @@ func PullRepos(rootDir string, checkoutDefault bool, force bool, exclude []strin
 			return nil
 		}
 	})
-
 	if err != nil {
 		fmt.Printf("❌ Error pulling GIT repositories in %q: %v\n", rootDir, err)
 	}
