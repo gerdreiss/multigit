@@ -2,6 +2,8 @@
 
 MultiGIT is a GIT helper for executing a subset of git commands on multiple repositories.
 
+$${\color{red}Note! \space This \space tool \space does \space not \space guarantee \space flawless \space functioning \space - \space use \space on \space your \space own \space risk!}$$
+
 ```
 Usage:
   mgit [command]
