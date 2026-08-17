@@ -9,8 +9,8 @@ type AppConfig struct {
 			Password string `mapstructure:"password"`
 		} `mapstructure:"basic-auth"`
 		TokenAuth struct {
-			Token string `mapstructure:"private-key"`
-		}
+			Token string `mapstructure:"token"`
+		} `mapstructure:"token-auth"`
 	} `mapstructure:"git"`
 }
 

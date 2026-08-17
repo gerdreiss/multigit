@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"slices"
+	"strings"
 
 	"github.com/gerdreiss/mgit/config"
 	"github.com/spf13/cobra"
@@ -59,6 +60,30 @@ func printSelectedSettings(args []string) {
 }
 
 func WriteConfig(cmd *cobra.Command, args []string) {
-	fmt.Printf("Writing configuration from args: %v\n", args)
-	fmt.Fprintf(os.Stderr, "not yet implemented")
+	for _, arg := range args {
+		parts := strings.SplitN(arg, "=", 2)
+		viper.Set(parts[0], parts[1])
+	}
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "❌ failed to determine user home directory: %v\n\n", err)
+		return
+	}
+	if _, err := os.Stat(homedir + "/.mgit"); err != nil {
+		if err := os.Mkdir(homedir+"/.mgit", 0755); err != nil {
+			fmt.Fprintf(os.Stderr, "❌ failed to create .mgit directory: %v\n", err)
+			return
+		}
+	}
+	file, err := os.OpenFile(homedir+"/.mgit/config", os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "❌ failed to open or create config file: %v\n", err)
+		return
+	}
+	defer file.Close()
+	if err := viper.WriteConfigTo(file); err != nil {
+		fmt.Fprintf(os.Stderr, "❌ failed to write config file: %v\n", err)
+		return
+	}
+	fmt.Println("✅ successfully written configuration to ~/.mgit/config")
 }
