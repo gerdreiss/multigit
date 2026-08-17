@@ -10,9 +10,9 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/gerdreiss/mgit/config"
 	"github.com/gerdreiss/mgit/helpers"
 	"github.com/go-git/go-git/v5"
-	"github.com/spf13/viper"
 )
 
 const (
@@ -24,7 +24,8 @@ const (
 )
 
 func PrintRepoWithBranchName(repoPath string, listLocalBranches bool) error {
-	remoteName := viper.GetString("git.remote-name")
+	appConfig := config.GetAppConfig()
+
 	repoName := filepath.Base(repoPath)
 
 	repo, err := git.PlainOpen(repoPath)
@@ -54,7 +55,7 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool) error {
 		return nil
 	}
 
-	remoteBranches, err := getRemoteBranchNames(repo, remoteName)
+	remoteBranches, err := getRemoteBranchNames(repo, appConfig.Git.RemoteName)
 	if err != nil {
 		remoteBranches = []string{}
 	}
@@ -72,7 +73,7 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool) error {
 		red,
 		helpers.IfElse(isCurrentBranchClean, "", "*"),
 		helpers.IfElse(isCurrentBranchTracked, blue, grey),
-		helpers.IfElse(isCurrentBranchTracked, remoteName+"/"+currentBranch, "untracked"),
+		helpers.IfElse(isCurrentBranchTracked, appConfig.Git.RemoteName+"/"+currentBranch, "untracked"),
 		red,
 		reset,
 	)
@@ -100,7 +101,7 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool) error {
 					localBranch,
 					red,
 					helpers.IfElse(isLocalBranchTracked, blue, grey),
-					helpers.IfElse(isLocalBranchTracked, remoteName+"/"+localBranch, "untracked"),
+					helpers.IfElse(isLocalBranchTracked, appConfig.Git.RemoteName+"/"+localBranch, "untracked"),
 					red,
 					reset,
 				)

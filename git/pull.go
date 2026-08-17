@@ -8,16 +8,16 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gerdreiss/mgit/helpers"
+	"github.com/gerdreiss/mgit/auth"
+	"github.com/gerdreiss/mgit/config"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/transport/http"
-	"github.com/spf13/viper"
 )
 
 // GitPullWithOptions performs a git pull with custom options
 func GitPullWithOptions(repoPath string, checkoutDefault bool, force bool) error {
-	remoteName := viper.GetString("git.remote-name")
+	appConfig := config.GetAppConfig()
+
 	repoName := filepath.Base(repoPath)
 
 	// Open the repository
@@ -67,25 +67,16 @@ func GitPullWithOptions(repoPath string, checkoutDefault bool, force bool) error
 		return nil
 	}
 
-	auth := helpers.IfElse(
-		viper.GetString("git.auth-method") == "basic",
-		&http.BasicAuth{
-			Username: viper.GetString("git.basic-auth.username"),
-			Password: viper.GetString("git.basic-auth.password"),
-		},
-		nil,
-	)
-
 	// Prepare pull options
 	pullOpts := &git.PullOptions{
-		RemoteName:    remoteName,
+		RemoteName:    appConfig.Git.RemoteName,
 		ReferenceName: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", currentBranchName)),
 		Force:         force,
-		Auth:          auth,
+		Auth:          auth.GetAuth(),
 		Progress:      os.Stdout,
 	}
 
-	fmt.Printf("🔄 %s - Pulling %s from %s...\n", repoName, currentBranchName, remoteName)
+	fmt.Printf("🔄 %s - Pulling %s from %s...\n", repoName, currentBranchName, appConfig.Git.RemoteName)
 
 	// Perform the pull
 	err = worktree.Pull(pullOpts)

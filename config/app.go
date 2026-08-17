@@ -8,18 +8,18 @@ type AppConfig struct {
 			Username string `mapstructure:"username"`
 			Password string `mapstructure:"password"`
 		} `mapstructure:"basic-auth"`
-		Ssl struct {
-			PrivateKey string `mapstring:"private-key"`
+		TokenAuth struct {
+			Token string `mapstructure:"private-key"`
 		}
 	} `mapstructure:"git"`
 }
 
 var Config AppConfig
 
-func SetConfig(config AppConfig) {
+func SetAppConfig(config AppConfig) {
 	Config = config
 }
 
-func GetConfig() *AppConfig {
+func GetAppConfig() *AppConfig {
 	return &Config
 }

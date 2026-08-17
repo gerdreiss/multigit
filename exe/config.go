@@ -6,6 +6,7 @@ import (
 	"os"
 	"slices"
 
+	"github.com/gerdreiss/mgit/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.yaml.in/yaml/v3"
@@ -20,7 +21,7 @@ func PrintConfig(cmd *cobra.Command, args []string) {
 }
 
 func printAllSettings(cmd *cobra.Command) {
-	settings := viper.AllSettings()
+	appConfig := config.GetAppConfig()
 
 	displayJson, err := cmd.Flags().GetBool("json")
 	if err != nil {
@@ -29,7 +30,7 @@ func printAllSettings(cmd *cobra.Command) {
 	}
 
 	if displayJson {
-		prettyJSON, err := json.MarshalIndent(settings, "", "  ")
+		prettyJSON, err := json.MarshalIndent(appConfig, "", "  ")
 		if err != nil {
 			fmt.Printf("Error marshaling config: %v\n", err)
 			return
@@ -38,7 +39,7 @@ func printAllSettings(cmd *cobra.Command) {
 		// 3. Print the result
 		fmt.Println(string(prettyJSON))
 	} else {
-		yamlData, err := yaml.Marshal(settings)
+		yamlData, err := yaml.Marshal(appConfig)
 		if err != nil {
 			fmt.Printf("Error marshaling config to YAML: %v\n", err)
 			return
@@ -52,7 +53,7 @@ func printSelectedSettings(args []string) {
 		if slices.Contains(viper.AllKeys(), arg) {
 			fmt.Printf("%s = %s\n", arg, viper.GetString(arg))
 		} else {
-			fmt.Fprintf(os.Stderr, "key %s not found. make sure you enter the whole key, e.g. git.remote-name\n", arg)
+			fmt.Fprintf(os.Stderr, "key %s not found. make sure you enter the complete key, e.g. git.remote-name\n", arg)
 		}
 	}
 }

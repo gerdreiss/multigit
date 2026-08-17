@@ -6,6 +6,7 @@ package git
 import (
 	"fmt"
 
+	"github.com/gerdreiss/mgit/auth"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 )
@@ -35,7 +36,9 @@ func getDefaultBranchName(repo *git.Repository) (string, error) {
 	}
 
 	// Fetch remote info to get HEAD
-	refs, err := remote.List(&git.ListOptions{})
+	refs, err := remote.List(&git.ListOptions{
+		Auth: auth.GetAuth(),
+	})
 	if err != nil {
 		// If can't list remote, try local
 		return getDefaultLocalBranchName(repo)
