@@ -82,10 +82,13 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, remoteName
 			fmt.Fprintf(os.Stderr, "❌ Failed to determine the local branches for %s: %v\n", repoName, err)
 			localBranches = []string{}
 		}
+
 		localBranches = slices.DeleteFunc(localBranches, func(b string) bool { return b == currentBranch })
 		if len(localBranches) > 0 {
 			for _, localBranch := range localBranches {
 				spaces := strings.Repeat(" ", lineLength-len(localBranch))
+				isLocalBranchTracked := slices.Contains(remoteBranches, localBranch)
+
 				fmt.Printf(
 					"%s%s[%s%s%s][%s%s%s]%s\n",
 					spaces,
@@ -93,8 +96,8 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, remoteName
 					green,
 					localBranch,
 					red,
-					helpers.IfElse(slices.Contains(remoteBranches, localBranch), blue, grey),
-					helpers.IfElse(slices.Contains(remoteBranches, localBranch), remoteName+"/"+localBranch, "untracked"),
+					helpers.IfElse(isLocalBranchTracked, blue, grey),
+					helpers.IfElse(isLocalBranchTracked, remoteName+"/"+localBranch, "untracked"),
 					red,
 					reset,
 				)
