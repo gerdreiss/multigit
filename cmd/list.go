@@ -35,7 +35,7 @@ func listRepos(cmd *cobra.Command, args []string) {
 		branches = false
 	}
 
-	exe.ListAll(rootDir, branches, git.DefaultPullOptions())
+	exe.ListAll(rootDir, branches, git.DefaultListOptions())
 }
 
 func init() {

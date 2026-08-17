@@ -5,6 +5,22 @@ package git
 
 import "github.com/go-git/go-git/v5/plumbing/transport"
 
+// ListOptions configures the git remote and git branch operations
+type ListOptions struct {
+	RemoteName   string
+	Auth         transport.AuthMethod
+	ShowProgress bool
+}
+
+// DefaultListOptions returns default list options
+func DefaultListOptions() *ListOptions {
+	return &ListOptions{
+		RemoteName:   "origin",
+		Auth:         nil,
+		ShowProgress: true,
+	}
+}
+
 // PullOptions configures the git pull operation
 type PullOptions struct {
 	RemoteName   string
