@@ -26,7 +26,7 @@ func PurgeLocalBranches(rootDir string, exclude []string) {
 		}
 
 		if i.IsDir() {
-			return git.PurgeLocalBranches(repoPath, exclude, git.DefaultPullOptions())
+			return git.PurgeLocalBranches(repoPath, exclude, git.DefaultCommonOptions())
 		}
 
 		return nil

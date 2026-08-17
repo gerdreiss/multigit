@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 
 	"github.com/gerdreiss/mgit/exe"
-	"github.com/gerdreiss/mgit/git"
 	"github.com/gerdreiss/mgit/helpers"
 	"github.com/spf13/cobra"
 )
@@ -35,7 +34,7 @@ func listRepos(cmd *cobra.Command, args []string) {
 		branches = false
 	}
 
-	exe.ListAll(rootDir, branches, git.DefaultListOptions())
+	exe.ListAll(rootDir, branches)
 }
 
 func init() {

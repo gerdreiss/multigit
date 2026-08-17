@@ -65,18 +65,18 @@ func GitPullWithOptions(repoPath string, opts *PullOptions) error {
 
 	// Prepare pull options
 	pullOpts := &git.PullOptions{
-		RemoteName:    opts.RemoteName,
+		RemoteName:    opts.Commons.RemoteName,
 		ReferenceName: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", currentBranchName)),
 		Force:         opts.Force,
-		Auth:          opts.Auth,
+		Auth:          opts.Commons.Auth,
 	}
 
 	// Show progress
-	if opts.ShowProgress {
+	if opts.Commons.ShowProgress {
 		pullOpts.Progress = os.Stdout
 	}
 
-	fmt.Printf("🔄 %s - Pulling %s from %s...\n", repoName, currentBranchName, opts.RemoteName)
+	fmt.Printf("🔄 %s - Pulling %s from %s...\n", repoName, currentBranchName, opts.Commons.RemoteName)
 
 	// Perform the pull
 	err = worktree.Pull(pullOpts)

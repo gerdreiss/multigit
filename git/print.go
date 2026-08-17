@@ -22,7 +22,7 @@ const (
 	reset = "\033[0m"
 )
 
-func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, remoteName string) error {
+func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, opts *CommonOptions) error {
 	repoName := filepath.Base(repoPath)
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
@@ -51,7 +51,7 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, remoteName
 		return nil
 	}
 
-	remoteBranches, err := getRemoteBranchNames(repo, remoteName)
+	remoteBranches, err := getRemoteBranchNames(repo, opts.RemoteName)
 	if err != nil {
 		remoteBranches = []string{}
 	}
@@ -69,7 +69,7 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, remoteName
 		red,
 		helpers.IfElse(isCurrentBranchClean, "", "*"),
 		helpers.IfElse(isCurrentBranchTracked, blue, grey),
-		helpers.IfElse(isCurrentBranchTracked, remoteName+"/"+currentBranch, "untracked"),
+		helpers.IfElse(isCurrentBranchTracked, opts.RemoteName+"/"+currentBranch, "untracked"),
 		red,
 		reset,
 	)
@@ -97,7 +97,7 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, remoteName
 					localBranch,
 					red,
 					helpers.IfElse(isLocalBranchTracked, blue, grey),
-					helpers.IfElse(isLocalBranchTracked, remoteName+"/"+localBranch, "untracked"),
+					helpers.IfElse(isLocalBranchTracked, opts.RemoteName+"/"+localBranch, "untracked"),
 					red,
 					reset,
 				)

@@ -13,7 +13,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 )
 
-func PurgeLocalBranches(repoPath string, exclude []string, opts *PullOptions) error {
+func PurgeLocalBranches(repoPath string, exclude []string, opts *CommonOptions) error {
 	repoName := filepath.Base(repoPath)
 	if slices.Contains(exclude, repoName) {
 		return nil
