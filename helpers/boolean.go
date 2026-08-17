@@ -17,3 +17,10 @@ func IfElseLazy[T any](cond bool, ifTrue func() T, ifFalse func() T) T {
 	}
 	return ifFalse()
 }
+
+func IfElseErr[T any](cond bool, ifTrue func() (T, error), ifFalse func() (T, error)) (T, error) {
+	if cond {
+		return ifTrue()
+	}
+	return ifFalse()
+}

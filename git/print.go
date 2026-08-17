@@ -56,6 +56,9 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, remoteName
 		remoteBranches = []string{}
 	}
 
+	isCurrentBranchClean := status.IsClean()
+	isCurrentBranchTracked := slices.Contains(remoteBranches, currentBranch)
+
 	// Print out all the info
 	fmt.Printf(
 		"%s %s[%s%s%s%s][%s%s%s]%s\n",
@@ -64,12 +67,14 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, remoteName
 		green,
 		currentBranch,
 		red,
-		helpers.IfElse(status.IsClean(), "", "*"),
-		helpers.IfElse(slices.Contains(remoteBranches, currentBranch), blue, grey),
-		helpers.IfElse(slices.Contains(remoteBranches, currentBranch), remoteName+"/"+currentBranch, "untracked"),
+		helpers.IfElse(isCurrentBranchClean, "", "*"),
+		helpers.IfElse(isCurrentBranchTracked, blue, grey),
+		helpers.IfElse(isCurrentBranchTracked, remoteName+"/"+currentBranch, "untracked"),
 		red,
 		reset,
 	)
+
+	lineLength := len(repoPath) + len(currentBranch) + helpers.IfElse(isCurrentBranchClean, 1, 2)
 
 	if listLocalBranches {
 		localBranches, err := getLocalBranchNames(repo)
@@ -80,7 +85,7 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, remoteName
 		localBranches = slices.DeleteFunc(localBranches, func(b string) bool { return b == currentBranch })
 		if len(localBranches) > 0 {
 			for _, localBranch := range localBranches {
-				spaces := strings.Repeat(" ", len(repoPath)-len(localBranch)+len(currentBranch)+helpers.IfElse(status.IsClean(), 1, 2))
+				spaces := strings.Repeat(" ", lineLength-len(localBranch))
 				fmt.Printf(
 					"%s%s[%s%s%s][%s%s%s]%s\n",
 					spaces,
