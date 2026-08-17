@@ -4,12 +4,16 @@ MultiGIT is a GIT helper for executing a subset of git commands on multiple repo
 
 $${\color{red}Note! \space This \space tool \space does \space not \space guarantee \space flawless \space functioning \space - \space use \space on \space your \space own \space risk!}$$
 
+## mgit -h
 ```
+mgit is a GIT helper for executing a subset of git commands on multiple repositories.
+
 Usage:
   mgit [command]
 
 Available Commands:
   completion  Generate the autocompletion script for the specified shell
+  config      Manage configuration
   help        Help about any command
   list        Lists GIT reposities with their currently checked out branches in the given directory.
   pull        Executes git pull in all git repositories in the given directory
@@ -20,6 +24,24 @@ Flags:
 
 Use "mgit [command] --help" for more information about a command.
 ```
+
+## mgit config
+```
+Commands to manage application configuration
+
+Usage:
+  mgit config [command]
+
+Available Commands:
+  read        Read configuration
+  write       Write configuration values
+
+Flags:
+  -h, --help   help for config
+
+Use "mgit config [command] --help" for more information about a command.
+```
+
 ## mgit list
 ```
 Lists GIT reposities with their currently checked out branches in the given directory.
@@ -31,6 +53,7 @@ Flags:
   -b, --branches   List all local branches.
   -h, --help       help for list
 ```
+
 ## mgit pull
 ```
 Executes git pull in all git repositories in the given directory
@@ -50,6 +73,7 @@ Flags:
   -f, --force             Force pulling or checking out the default branch when current branch is dirty.
   -h, --help              help for pull
 ```
+
 ## mgit purge
 $${\color{red}Careful! \space This \space will \space delete \space local \space branches - \space make \space sure \space you \space really \space want \space that!}$$
 ```

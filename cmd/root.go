@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -25,4 +26,17 @@ func Execute() {
 	}
 }
 
-func init() {}
+func init() {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+
+	viper.AddConfigPath("/etc/mgit/")
+	viper.AddConfigPath("/usr/local/etc/mgit/")
+	viper.AddConfigPath("$HOME/.mgit/")
+	viper.AddConfigPath(".")
+
+	viper.SetDefault("git.remote-name", "origin")
+	viper.SetDefault("git.auth-method", "none")
+
+	_ = viper.ReadInConfig()
+}

@@ -7,17 +7,15 @@ import "github.com/go-git/go-git/v5/plumbing/transport"
 
 // CommonOptions configures the git remote and git branch operations
 type CommonOptions struct {
-	RemoteName   string
-	Auth         transport.AuthMethod
-	ShowProgress bool
+	RemoteName string
+	Auth       transport.AuthMethod
 }
 
 // DefaultCommonOptions returns default list options
 func DefaultCommonOptions() *CommonOptions {
 	return &CommonOptions{
-		RemoteName:   "origin",
-		Auth:         nil,
-		ShowProgress: true,
+		RemoteName: "origin",
+		Auth:       nil,
 	}
 }
 

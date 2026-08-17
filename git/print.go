@@ -12,6 +12,7 @@ import (
 
 	"github.com/gerdreiss/mgit/helpers"
 	"github.com/go-git/go-git/v5"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -22,8 +23,10 @@ const (
 	reset = "\033[0m"
 )
 
-func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, opts *CommonOptions) error {
+func PrintRepoWithBranchName(repoPath string, listLocalBranches bool) error {
+	remoteName := viper.GetString("git.remote-name")
 	repoName := filepath.Base(repoPath)
+
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "❌ failed to open repo %s: %v\n", repoName, err)
@@ -51,7 +54,7 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, opts *Comm
 		return nil
 	}
 
-	remoteBranches, err := getRemoteBranchNames(repo, opts.RemoteName)
+	remoteBranches, err := getRemoteBranchNames(repo, remoteName)
 	if err != nil {
 		remoteBranches = []string{}
 	}
@@ -69,7 +72,7 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, opts *Comm
 		red,
 		helpers.IfElse(isCurrentBranchClean, "", "*"),
 		helpers.IfElse(isCurrentBranchTracked, blue, grey),
-		helpers.IfElse(isCurrentBranchTracked, opts.RemoteName+"/"+currentBranch, "untracked"),
+		helpers.IfElse(isCurrentBranchTracked, remoteName+"/"+currentBranch, "untracked"),
 		red,
 		reset,
 	)
@@ -97,7 +100,7 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool, opts *Comm
 					localBranch,
 					red,
 					helpers.IfElse(isLocalBranchTracked, blue, grey),
-					helpers.IfElse(isLocalBranchTracked, opts.RemoteName+"/"+localBranch, "untracked"),
+					helpers.IfElse(isLocalBranchTracked, remoteName+"/"+localBranch, "untracked"),
 					red,
 					reset,
 				)

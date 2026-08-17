@@ -26,7 +26,7 @@ func ListAll(rootDir string, branches bool) {
 		}
 
 		if i.IsDir() {
-			return git.PrintRepoWithBranchName(repoPath, branches, git.DefaultCommonOptions())
+			return git.PrintRepoWithBranchName(repoPath, branches)
 		}
 
 		return nil

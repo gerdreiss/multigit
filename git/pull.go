@@ -8,12 +8,16 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gerdreiss/mgit/helpers"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/transport/http"
+	"github.com/spf13/viper"
 )
 
 // GitPullWithOptions performs a git pull with custom options
-func GitPullWithOptions(repoPath string, opts *PullOptions) error {
+func GitPullWithOptions(repoPath string, checkoutDefault bool, force bool) error {
+	remoteName := viper.GetString("git.remote-name")
 	repoName := filepath.Base(repoPath)
 
 	// Open the repository
@@ -29,14 +33,14 @@ func GitPullWithOptions(repoPath string, opts *PullOptions) error {
 		return nil
 	}
 
-	if opts.Default {
+	if checkoutDefault {
 		defaultBranchName, err := getDefaultBranchName(repo)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "❌ failed to get the default branch name for %s: %v\n", repoName, err)
 			return nil
 		}
 		if currentBranchName != defaultBranchName {
-			if err := checkoutBranch(repo, defaultBranchName, opts.Force); err != nil {
+			if err := checkoutBranch(repo, defaultBranchName, force); err != nil {
 				fmt.Fprintf(os.Stderr, "❌ failed to check out the default branch name of %s: %v\n", repoName, err)
 				return nil
 			}
@@ -58,25 +62,30 @@ func GitPullWithOptions(repoPath string, opts *PullOptions) error {
 		return nil
 	}
 
-	if !status.IsClean() && !opts.Force {
+	if !status.IsClean() && !force {
 		fmt.Fprintf(os.Stderr, "❌ uncommitted changes present in %s (use Force=true to override)\n", repoName)
 		return nil
 	}
 
+	auth := helpers.IfElse(
+		viper.GetString("git.auth-method") == "basic",
+		&http.BasicAuth{
+			Username: viper.GetString("git.basic-auth.username"),
+			Password: viper.GetString("git.basic-auth.password"),
+		},
+		nil,
+	)
+
 	// Prepare pull options
 	pullOpts := &git.PullOptions{
-		RemoteName:    opts.Commons.RemoteName,
+		RemoteName:    remoteName,
 		ReferenceName: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", currentBranchName)),
-		Force:         opts.Force,
-		Auth:          opts.Commons.Auth,
+		Force:         force,
+		Auth:          auth,
+		Progress:      os.Stdout,
 	}
 
-	// Show progress
-	if opts.Commons.ShowProgress {
-		pullOpts.Progress = os.Stdout
-	}
-
-	fmt.Printf("🔄 %s - Pulling %s from %s...\n", repoName, currentBranchName, opts.Commons.RemoteName)
+	fmt.Printf("🔄 %s - Pulling %s from %s...\n", repoName, currentBranchName, remoteName)
 
 	// Perform the pull
 	err = worktree.Pull(pullOpts)

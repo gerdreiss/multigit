@@ -30,8 +30,7 @@ func PullRepos(rootDir string, checkoutDefault bool, force bool, exclude []strin
 		}
 
 		if i.IsDir() {
-			opts := git.DefaultPullOptions().WithDefault(checkoutDefault).WithForce(force)
-			return git.GitPullWithOptions(repoPath, opts)
+			return git.GitPullWithOptions(repoPath, checkoutDefault, force)
 		} else {
 			return nil
 		}

@@ -11,9 +11,11 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/spf13/viper"
 )
 
-func PurgeLocalBranches(repoPath string, exclude []string, opts *CommonOptions) error {
+func PurgeLocalBranches(repoPath string, exclude []string) error {
+	remoteName := viper.GetString("git.remote-name")
 	repoName := filepath.Base(repoPath)
 	if slices.Contains(exclude, repoName) {
 		return nil
@@ -38,7 +40,7 @@ func PurgeLocalBranches(repoPath string, exclude []string, opts *CommonOptions) 
 		localBranches = []string{}
 	}
 
-	remoteBranches, err := getRemoteBranchNames(repo, opts.RemoteName)
+	remoteBranches, err := getRemoteBranchNames(repo, remoteName)
 	if err != nil {
 		remoteBranches = []string{}
 	}
