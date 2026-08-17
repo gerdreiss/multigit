@@ -37,7 +37,7 @@ func getDefaultBranchName(repo *git.Repository) (string, error) {
 
 	// Fetch remote info to get HEAD
 	refs, err := remote.List(&git.ListOptions{
-		Auth: auth.GetAuth(),
+		Auth: auth.GetAuthMethod(),
 	})
 	if err != nil {
 		// If can't list remote, try local
@@ -108,7 +108,7 @@ func getRemoteBranchNames(repo *git.Repository, remoteName string) ([]string, er
 
 	// List remote references
 	refs, err := remote.List(&git.ListOptions{
-		Auth: auth.GetAuth(),
+		Auth: auth.GetAuthMethod(),
 	})
 	if err != nil {
 		return []string{}, fmt.Errorf("failed to list remote references: %w", err)

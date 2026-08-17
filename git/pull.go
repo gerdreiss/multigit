@@ -72,7 +72,7 @@ func GitPullWithOptions(repoPath string, checkoutDefault bool, force bool) error
 		RemoteName:    appConfig.Git.RemoteName,
 		ReferenceName: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", currentBranchName)),
 		Force:         force,
-		Auth:          auth.GetAuth(),
+		Auth:          auth.GetAuthMethod(),
 		Progress:      os.Stdout,
 	}
 

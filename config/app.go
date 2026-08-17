@@ -23,3 +23,11 @@ func SetAppConfig(config AppConfig) {
 func GetAppConfig() *AppConfig {
 	return &Config
 }
+
+func (config AppConfig) HasBasicAuth() bool {
+	return config.Git.AuthMethod == "basic"
+}
+
+func (config AppConfig) HasTokenAuth() bool {
+	return config.Git.AuthMethod == "token"
+}
