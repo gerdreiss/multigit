@@ -107,7 +107,9 @@ func getRemoteBranchNames(repo *git.Repository, remoteName string) ([]string, er
 	}
 
 	// List remote references
-	refs, err := remote.List(&git.ListOptions{})
+	refs, err := remote.List(&git.ListOptions{
+		Auth: auth.GetAuth(),
+	})
 	if err != nil {
 		return []string{}, fmt.Errorf("failed to list remote references: %w", err)
 	}
