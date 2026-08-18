@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gerdreiss/mgit/git"
 )
@@ -16,7 +17,7 @@ func PurgeLocalBranches(rootDir string, exclude []string) {
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() {
+		if !info.IsDir() || strings.Contains(repoPath, "/.git") {
 			return nil
 		}
 
@@ -26,6 +27,7 @@ func PurgeLocalBranches(rootDir string, exclude []string) {
 		}
 
 		if i.IsDir() {
+			fmt.Printf("Checking repository: %s\n", repoPath)
 			return git.PurgeLocalBranches(repoPath, exclude)
 		}
 
