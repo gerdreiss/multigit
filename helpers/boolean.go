@@ -24,3 +24,8 @@ func IfElseErr[T any](cond bool, ifTrue func() (T, error), ifFalse func() (T, er
 	}
 	return ifFalse()
 }
+
+// Helper to wrap values in functions
+func Val[T any](v T) func() T {
+	return func() T { return v }
+}

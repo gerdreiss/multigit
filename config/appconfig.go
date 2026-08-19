@@ -51,13 +51,10 @@ func Load() {
 
 	v.SetDefault("git", []GitConfig{{Remote: &GitRemote{Name: "origin", Host: "github.com"}}})
 
-	err := v.ReadInConfig()
-	if err != nil {
-		log.Printf("Error reading config: %v\n", err)
-	}
+	_ = v.ReadInConfig()
 
 	// Unmarshal the config file into the AppConfig struct
-	err = v.Unmarshal(&config)
+	err := v.Unmarshal(&config)
 	if err != nil {
 		log.Fatalf("Unable to decode into struct, %v", err)
 	}

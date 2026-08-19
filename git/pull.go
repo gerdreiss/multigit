@@ -79,13 +79,13 @@ func GitPullWithOptions(repoPath string, checkoutDefault bool, force bool) error
 	gitConfig := config.GetGitConfig(remotes[0].Config().URLs[0])
 	remoteName := helpers.IfElseLazy(
 		gitConfig == nil,
-		func() string { return "origin" },
-		func() string { return gitConfig.Remote.Name },
+		helpers.Val("origin"),
+		helpers.Val(gitConfig.Remote.Name),
 	)
 	authMethod := helpers.IfElseLazy(
 		gitConfig == nil,
-		func() transport.AuthMethod { return nil },
-		func() transport.AuthMethod { return auth.GetAuthMethod(gitConfig.Remote.Host) },
+		helpers.Val[transport.AuthMethod](nil),
+		helpers.Val(auth.GetAuthMethod(gitConfig.Remote.Host)),
 	)
 
 	// Prepare pull options
