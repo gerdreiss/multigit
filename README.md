@@ -109,3 +109,11 @@ git:
       token:
         token: the-token-xxx
 ```
+## default configuration
+```
+git:
+  - remote:
+      name: origin 
+      host: github.com
+```
+
