@@ -4,12 +4,10 @@ Copyright © 2026 Gerd Reiss gerd@reiss.pro
 package cmd
 
 import (
-	"log"
 	"os"
 
 	"github.com/gerdreiss/mgit/config"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -29,25 +27,5 @@ func Execute() {
 }
 
 func init() {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-
-	viper.AddConfigPath("/etc/mgit/")
-	viper.AddConfigPath("/usr/local/etc/mgit/")
-	viper.AddConfigPath("$HOME/.mgit/")
-	viper.AddConfigPath(".")
-
-	viper.SetDefault("git.remote-name", "origin")
-	viper.SetDefault("git.auth-method", "none")
-
-	_ = viper.ReadInConfig()
-
-	var conf config.AppConfig
-	// Unmarshal the config file into the AppConfig struct
-	err := viper.Unmarshal(&conf)
-	if err != nil {
-		log.Fatalf("Unable to decode into struct, %v", err)
-	}
-
-	config.SetAppConfig(conf)
+	config.Load()
 }

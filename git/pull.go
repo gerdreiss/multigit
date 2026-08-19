@@ -16,14 +16,17 @@ import (
 
 // GitPullWithOptions performs a git pull with custom options
 func GitPullWithOptions(repoPath string, checkoutDefault bool, force bool) error {
-	appConfig := config.GetAppConfig()
-
 	repoName := filepath.Base(repoPath)
 
-	// Open the repository
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "❌ failed to open repository %s: %v\n", repoName, err)
+		return nil
+	}
+
+	remotes, err := repo.Remotes()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "❌ failed to pull the latest changes for %s: %v\n", repoName, err)
 		return nil
 	}
 
@@ -67,16 +70,18 @@ func GitPullWithOptions(repoPath string, checkoutDefault bool, force bool) error
 		return nil
 	}
 
+	gitConfig := config.GetGitConfig(remotes[0].Config().URLs[0])
+
 	// Prepare pull options
 	pullOpts := &git.PullOptions{
-		RemoteName:    appConfig.Git.RemoteName,
+		RemoteName:    gitConfig.Remote.Name,
 		ReferenceName: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", currentBranchName)),
 		Force:         force,
-		Auth:          auth.GetAuthMethod(),
+		Auth:          auth.GetAuthMethod(gitConfig.Remote.Host),
 		Progress:      os.Stdout,
 	}
 
-	fmt.Printf("🔄 %s - Pulling %s from %s...\n", repoName, currentBranchName, appConfig.Git.RemoteName)
+	fmt.Printf("🔄 %s - Pulling %s from %s...\n", repoName, currentBranchName, gitConfig.Remote.Name)
 
 	// Perform the pull
 	err = worktree.Pull(pullOpts)

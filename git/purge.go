@@ -15,7 +15,6 @@ import (
 )
 
 func PurgeLocalBranches(repoPath string, exclude []string) error {
-	appConfig := config.GetAppConfig()
 	repoName := filepath.Base(repoPath)
 	if slices.Contains(exclude, repoName) {
 		return nil
@@ -40,9 +39,11 @@ func PurgeLocalBranches(repoPath string, exclude []string) error {
 		localBranches = []string{}
 	}
 
-	remoteBranches, err := getRemoteBranchNames(repo, appConfig.Git.RemoteName)
-	if err != nil {
-		remoteBranches = []string{}
+	remoteBranches := []string{}
+	remotes, err := repo.Remotes()
+	if err == nil {
+		gitConfig := config.GetGitConfig(remotes[0].Config().URLs[0])
+		remoteBranches, _ = getRemoteBranchNames(repo, gitConfig.Remote.Name)
 	}
 
 	for _, localBranch := range slices.DeleteFunc(localBranches, func(b string) bool { return b == currentBranch }) {

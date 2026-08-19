@@ -23,15 +23,31 @@ const (
 	reset = "\033[0m"
 )
 
-func PrintRepoWithBranchName(repoPath string, listLocalBranches bool) error {
-	appConfig := config.GetAppConfig()
-
+func PrintRepoWithBranchNames(repoPath string, listLocalBranches bool) error {
 	repoName := filepath.Base(repoPath)
 
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "❌ failed to open repo %s: %v\n", repoName, err)
 		return nil
+	}
+
+	// Get current currentBranch name
+	currentBranch, err := getCurrentBranchName(repo)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "❌ Failed to determine the current branch name for %s: %v\n", repoName, err)
+		return nil
+	}
+
+	remoteName := ""
+	remoteBranches := []string{}
+	remotes, err := repo.Remotes()
+	if err == nil && len(remotes) > 0 {
+		gitConfig := config.GetGitConfig(remotes[0].Config().URLs[0])
+		remoteBranches, err = getRemoteBranchNames(repo, gitConfig.Remote.Name)
+		if err == nil {
+			remoteName = gitConfig.Remote.Name
+		}
 	}
 
 	// Get the worktree
@@ -48,18 +64,6 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool) error {
 		return nil
 	}
 
-	// Get current currentBranch name
-	currentBranch, err := getCurrentBranchName(repo)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ Failed to determine the current branch name for %s: %v\n", repoName, err)
-		return nil
-	}
-
-	remoteBranches, err := getRemoteBranchNames(repo, appConfig.Git.RemoteName)
-	if err != nil {
-		remoteBranches = []string{}
-	}
-
 	isCurrentBranchClean := status.IsClean()
 	isCurrentBranchTracked := slices.Contains(remoteBranches, currentBranch)
 
@@ -73,7 +77,7 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool) error {
 		red,
 		helpers.IfElse(isCurrentBranchClean, "", "*"),
 		helpers.IfElse(isCurrentBranchTracked, blue, grey),
-		helpers.IfElse(isCurrentBranchTracked, appConfig.Git.RemoteName+"/"+currentBranch, "untracked"),
+		helpers.IfElse(isCurrentBranchTracked, remoteName+"/"+currentBranch, "untracked"),
 		red,
 		reset,
 	)
@@ -101,7 +105,7 @@ func PrintRepoWithBranchName(repoPath string, listLocalBranches bool) error {
 					localBranch,
 					red,
 					helpers.IfElse(isLocalBranchTracked, blue, grey),
-					helpers.IfElse(isLocalBranchTracked, appConfig.Git.RemoteName+"/"+localBranch, "untracked"),
+					helpers.IfElse(isLocalBranchTracked, remoteName+"/"+localBranch, "untracked"),
 					red,
 					reset,
 				)

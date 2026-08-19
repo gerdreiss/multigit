@@ -86,3 +86,26 @@ Flags:
   -x, --exclude strings   Exclude the repositories with the names given here from purging.
   -h, --help              help for purge
 ```
+
+## configuration
+```
+git:
+  - remote:
+      name: origin 
+      host: github.com
+
+  - remote
+      name: origin
+      host: gitlab.com
+    auth:
+      basic:
+        username: xyz
+        password: xxx
+
+  - remote
+      name: custom
+      host: enterprise.host
+    auth:
+      token:
+        token: the-token-xxx
+```

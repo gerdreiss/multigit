@@ -7,17 +7,17 @@ import (
 )
 
 // GetAuthMethod returns the configured auth method
-func GetAuthMethod() transport.AuthMethod {
-	appConfig := config.GetAppConfig()
-	if appConfig.HasBasicAuth() {
+func GetAuthMethod(host string) transport.AuthMethod {
+	gitConfig := config.GetGitConfig(host)
+	if gitConfig.HasBasicAuth() {
 		return &http.BasicAuth{
-			Username: appConfig.Git.BasicAuth.Username,
-			Password: appConfig.Git.BasicAuth.Password,
+			Username: gitConfig.Auth.Basic.Username,
+			Password: gitConfig.Auth.Basic.Password,
 		}
 	}
-	if appConfig.HasTokenAuth() {
+	if gitConfig.HasTokenAuth() {
 		return &http.TokenAuth{
-			Token: appConfig.Git.TokenAuth.Token,
+			Token: gitConfig.Auth.Token.Token,
 		}
 	}
 	return nil

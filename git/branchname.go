@@ -28,17 +28,17 @@ func getCurrentBranchName(repo *git.Repository) (string, error) {
 
 // getDefaultBranchName determines the default branch of the repository
 func getDefaultBranchName(repo *git.Repository) (string, error) {
-	// Try to get the default branch from remote
-	remote, err := repo.Remote("origin")
-	if err != nil {
+	remotes, err := repo.Remotes()
+	if err != nil || len(remotes) == 0 {
 		// No remote configured, try to determine from local branches
 		return getDefaultLocalBranchName(repo)
 	}
 
 	// Fetch remote info to get HEAD
-	refs, err := remote.List(&git.ListOptions{
-		Auth: auth.GetAuthMethod(),
-	})
+	opts := git.ListOptions{
+		Auth: auth.GetAuthMethod(remotes[0].Config().URLs[0]),
+	}
+	refs, err := remotes[0].List(&opts)
 	if err != nil {
 		// If can't list remote, try local
 		return getDefaultLocalBranchName(repo)
@@ -107,9 +107,10 @@ func getRemoteBranchNames(repo *git.Repository, remoteName string) ([]string, er
 	}
 
 	// List remote references
-	refs, err := remote.List(&git.ListOptions{
-		Auth: auth.GetAuthMethod(),
-	})
+	opts := git.ListOptions{
+		Auth: auth.GetAuthMethod(remote.Config().URLs[0]),
+	}
+	refs, err := remote.List(&opts)
 	if err != nil {
 		return []string{}, fmt.Errorf("failed to list remote references: %w", err)
 	}
