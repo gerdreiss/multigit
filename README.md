@@ -88,6 +88,8 @@ Flags:
 ```
 
 ## configuration
+mgit looks for the configuration in the current directory, or under `/etc/mgit`, `/usr/local/etc/mgit`, or `$HOME/.mgit/`
+the file should be called `config` or `config.yaml`
 ```
 git:
   - remote:
