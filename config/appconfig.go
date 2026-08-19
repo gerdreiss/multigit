@@ -1,9 +1,7 @@
 package config
 
 import (
-	"fmt"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -55,7 +53,7 @@ func Load() {
 
 	err := v.ReadInConfig()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading config: %v\n", err)
+		log.Printf("Error reading config: %v\n", err)
 	}
 
 	// Unmarshal the config file into the AppConfig struct

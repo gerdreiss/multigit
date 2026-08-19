@@ -10,8 +10,10 @@ import (
 
 	"github.com/gerdreiss/mgit/auth"
 	"github.com/gerdreiss/mgit/config"
+	"github.com/gerdreiss/mgit/helpers"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/transport"
 )
 
 // GitPullWithOptions performs a git pull with custom options
@@ -27,6 +29,10 @@ func GitPullWithOptions(repoPath string, checkoutDefault bool, force bool) error
 	remotes, err := repo.Remotes()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "❌ failed to pull the latest changes for %s: %v\n", repoName, err)
+		return nil
+	}
+	if len(remotes) == 0 {
+		fmt.Fprintf(os.Stderr, "❌ failed to pull the latest changes for %s: the repo seems to be untracked\n", repoName)
 		return nil
 	}
 
@@ -71,17 +77,27 @@ func GitPullWithOptions(repoPath string, checkoutDefault bool, force bool) error
 	}
 
 	gitConfig := config.GetGitConfig(remotes[0].Config().URLs[0])
+	remoteName := helpers.IfElseLazy(
+		gitConfig == nil,
+		func() string { return "origin" },
+		func() string { return gitConfig.Remote.Name },
+	)
+	authMethod := helpers.IfElseLazy(
+		gitConfig == nil,
+		func() transport.AuthMethod { return nil },
+		func() transport.AuthMethod { return auth.GetAuthMethod(gitConfig.Remote.Host) },
+	)
 
 	// Prepare pull options
 	pullOpts := &git.PullOptions{
-		RemoteName:    gitConfig.Remote.Name,
+		RemoteName:    remoteName,
 		ReferenceName: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", currentBranchName)),
 		Force:         force,
-		Auth:          auth.GetAuthMethod(gitConfig.Remote.Host),
+		Auth:          authMethod,
 		Progress:      os.Stdout,
 	}
 
-	fmt.Printf("🔄 %s - Pulling %s from %s...\n", repoName, currentBranchName, gitConfig.Remote.Name)
+	fmt.Printf("🔄 %s - Pulling %s from %s...\n", repoName, currentBranchName, remoteName)
 
 	// Perform the pull
 	err = worktree.Pull(pullOpts)
