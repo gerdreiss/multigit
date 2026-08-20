@@ -46,7 +46,7 @@ func PurgeLocalBranches(repoPath string, exclude []string) error {
 		return nil
 	}
 
-	for _, localBranch := range slices.DeleteFunc(localBranches, func(b string) bool { return b == currentBranch }) {
+	for _, localBranch := range slices.DeleteFunc(localBranches, func(lb string) bool { return lb == currentBranch }) {
 		if slices.ContainsFunc(remoteBranches, func(rb string) bool { return localBranch == helpers.SuffixAfterLast(rb, "/") }) {
 			continue
 		}
