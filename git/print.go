@@ -45,7 +45,7 @@ func PrintRepoWithBranchNames(repoPath string, listLocalBranches bool) error {
 
 	currentRemoteBranch := "untracked"
 	for _, remoteBranch := range remoteBranches {
-		if helpers.SuffixAfterLast(remoteBranch, "/") == currentBranch {
+		if strings.HasSuffix(remoteBranch, "/"+currentBranch) {
 			currentRemoteBranch = remoteBranch
 		}
 	}
@@ -96,7 +96,7 @@ func PrintRepoWithBranchNames(repoPath string, listLocalBranches bool) error {
 				spaces := strings.Repeat(" ", lineLength-len(localBranch))
 				localBranchRemote := "untracked"
 				for _, remoteBranch := range remoteBranches {
-					if localBranch == helpers.SuffixAfterLast(remoteBranch, "/") {
+					if strings.HasSuffix(remoteBranch, "/"+localBranch) {
 						localBranchRemote = remoteBranch
 					}
 				}

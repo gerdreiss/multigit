@@ -8,8 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 
-	"github.com/gerdreiss/mgit/helpers"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 )
@@ -47,7 +47,7 @@ func PurgeLocalBranches(repoPath string, exclude []string) error {
 	}
 
 	for _, localBranch := range slices.DeleteFunc(localBranches, func(lb string) bool { return lb == currentBranch }) {
-		if slices.ContainsFunc(remoteBranches, func(rb string) bool { return localBranch == helpers.SuffixAfterLast(rb, "/") }) {
+		if slices.ContainsFunc(remoteBranches, func(rb string) bool { return strings.HasSuffix(rb, "/"+localBranch) }) {
 			continue
 		}
 
