@@ -23,7 +23,7 @@ func getCurrentBranchName(repo *git.Repository) (string, error) {
 		return head.Name().Short(), nil
 	}
 
-	return "", fmt.Errorf("couldn't determine current branch name for repo %v", repo)
+	return "HEAD", nil
 }
 
 // getDefaultBranchName determines the default branch of the repository
@@ -35,10 +35,7 @@ func getDefaultBranchName(repo *git.Repository) (string, error) {
 	}
 
 	// Fetch remote info to get HEAD
-	opts := git.ListOptions{
-		Auth: auth.GetAuthMethod(remotes[0]),
-	}
-	refs, err := remotes[0].List(&opts)
+	refs, err := remotes[0].List(&git.ListOptions{Auth: auth.GetAuthMethod(remotes[0])})
 	if err != nil {
 		// If can't list remote, try local
 		return getDefaultLocalBranchName(repo)

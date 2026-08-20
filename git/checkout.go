@@ -24,10 +24,11 @@ func checkoutBranch(repo *git.Repository, branchName string, force bool) error {
 	branchRef := plumbing.NewBranchReferenceName(branchName)
 
 	// Checkout the branch
-	err = worktree.Checkout(&git.CheckoutOptions{
+	opts := git.CheckoutOptions{
 		Branch: branchRef,
 		Force:  force,
-	})
+	}
+	err = worktree.Checkout(&opts)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "❌ failed to checkout branch '%s': %v\n", branchName, err)
 		return nil

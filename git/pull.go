@@ -10,10 +10,8 @@ import (
 
 	"github.com/gerdreiss/mgit/auth"
 	"github.com/gerdreiss/mgit/config"
-	"github.com/gerdreiss/mgit/helpers"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/transport"
 )
 
 // GitPullWithOptions performs a git pull with custom options
@@ -77,16 +75,8 @@ func GitPullWithOptions(repoPath string, checkoutDefault bool, force bool) error
 	}
 
 	gitConfig := config.GetGitConfig(remotes[0])
-	remoteName := helpers.IfElseLazy(
-		gitConfig == nil,
-		helpers.Val("origin"),
-		helpers.Val(gitConfig.Remote.Name),
-	)
-	authMethod := helpers.IfElseLazy(
-		gitConfig == nil,
-		helpers.Val[transport.AuthMethod](nil),
-		helpers.Val(auth.GetAuthMethod(remotes[0])),
-	)
+	remoteName := gitConfig.Remote.Name
+	authMethod := auth.GetAuthMethod(remotes[0])
 
 	// Prepare pull options
 	pullOpts := &git.PullOptions{
