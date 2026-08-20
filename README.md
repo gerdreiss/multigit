@@ -13,7 +13,7 @@ Usage:
 
 Available Commands:
   completion  Generate the autocompletion script for the specified shell
-  config      Manage configuration
+  config      Display configuration
   help        Help about any command
   list        Lists GIT reposities with their currently checked out branches in the given directory.
   pull        Executes git pull in all git repositories in the given directory
@@ -27,19 +27,14 @@ Use "mgit [command] --help" for more information about a command.
 
 ## mgit config
 ```
-Commands to manage application configuration
+Read and display the current configuration values
 
 Usage:
-  mgit config [command]
-
-Available Commands:
-  read        Read configuration
-  write       Write configuration values
+  mgit config [flags]
 
 Flags:
   -h, --help   help for config
-
-Use "mgit config [command] --help" for more information about a command.
+  -j, --json   Print configuration as JSON.
 ```
 
 ## mgit list

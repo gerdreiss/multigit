@@ -1,11 +1,16 @@
 package config
 
 import (
+	"errors"
+	"fmt"
 	"log"
+	"regexp"
 
+	"github.com/cybergodev/json"
 	"github.com/gerdreiss/mgit/helpers"
 	"github.com/go-git/go-git/v5"
 	"github.com/spf13/viper"
+	"go.yaml.in/yaml/v3"
 )
 
 type TokenAuthConfig struct {
@@ -55,6 +60,7 @@ func Load() {
 	if err != nil {
 		log.Fatalf("Unable to decode into struct, %v", err)
 	}
+
 }
 
 func GetAppConfig() *AppConfig {
@@ -86,4 +92,52 @@ func (host GitConfig) HasBasicAuth() bool {
 
 func (host GitConfig) HasTokenAuth() bool {
 	return host.Auth != nil && host.Auth.Token != nil
+}
+
+func Get(key string) (string, error) {
+	re := regexp.MustCompile(`^git\.(\d+)(\.\w+)+$`)
+	if re.MatchString(key) {
+		marshalled, err := json.Marshal(config)
+		if err != nil {
+			return "", err
+		}
+		jsonstring := string(marshalled)
+		fmt.Println(jsonstring)
+		value, err := json.Get(jsonstring, key)
+		if err != nil {
+			return "", err
+		}
+		if s, ok := value.(string); ok {
+			return s, nil
+		}
+		if m, ok := value.(map[string]any); ok {
+			data, err := yaml.Marshal(m)
+			if err != nil {
+				return "", err
+			}
+			return string(data), nil
+		}
+	}
+
+	return "", errors.New("Invalid configuration key: " + key)
+}
+
+func Set(key string, value string) error {
+	re := regexp.MustCompile(`^git\.(\d+)(\.\w+)+$`)
+	if re.MatchString(key) {
+		marshalled, err := json.Marshal(config)
+		if err != nil {
+			return err
+		}
+		jsonstring := string(marshalled)
+		updated, err := json.Set(jsonstring, key, value)
+		if err != nil {
+			return err
+		}
+		if err := json.Unmarshal([]byte(updated), &config); err != nil {
+			return err
+		}
+	}
+
+	return errors.New("Invalid configuration key: " + key)
 }
