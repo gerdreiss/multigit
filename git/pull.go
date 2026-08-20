@@ -32,7 +32,7 @@ func GitPullWithOptions(repoPath string, checkoutDefault bool, force bool) error
 		return nil
 	}
 	if len(remotes) == 0 {
-		fmt.Fprintf(os.Stderr, "❌ failed to pull the latest changes for %s: the repo seems to be untracked\n", repoName)
+		fmt.Fprintf(os.Stderr, "❌ failed to pull the latest changes for %s: the repo seems to be local only\n", repoName)
 		return nil
 	}
 
@@ -76,7 +76,7 @@ func GitPullWithOptions(repoPath string, checkoutDefault bool, force bool) error
 		return nil
 	}
 
-	gitConfig := config.GetGitConfig(remotes[0].Config().URLs[0])
+	gitConfig := config.GetGitConfig(remotes[0])
 	remoteName := helpers.IfElseLazy(
 		gitConfig == nil,
 		helpers.Val("origin"),
@@ -85,7 +85,7 @@ func GitPullWithOptions(repoPath string, checkoutDefault bool, force bool) error
 	authMethod := helpers.IfElseLazy(
 		gitConfig == nil,
 		helpers.Val[transport.AuthMethod](nil),
-		helpers.Val(auth.GetAuthMethod(gitConfig.Remote.Host)),
+		helpers.Val(auth.GetAuthMethod(remotes[0])),
 	)
 
 	// Prepare pull options

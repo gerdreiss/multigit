@@ -2,8 +2,9 @@ package config
 
 import (
 	"log"
-	"strings"
 
+	"github.com/gerdreiss/mgit/helpers"
+	"github.com/go-git/go-git/v5"
 	"github.com/spf13/viper"
 )
 
@@ -44,12 +45,8 @@ func Load() {
 	v.SetConfigName("config")
 	v.SetConfigType("yaml")
 
-	v.AddConfigPath("/etc/mgit/")
-	v.AddConfigPath("/usr/local/etc/mgit/")
 	v.AddConfigPath("$HOME/.mgit/")
 	v.AddConfigPath(".")
-
-	v.SetDefault("git", []GitConfig{{Remote: &GitRemote{Name: "origin", Host: "github.com"}}})
 
 	_ = v.ReadInConfig()
 
@@ -64,13 +61,23 @@ func GetAppConfig() *AppConfig {
 	return &config
 }
 
-func GetGitConfig(remoteUrl string) *GitConfig {
+// GetGitConfig return a configuration for the given Remote even if none exists
+func GetGitConfig(remote *git.Remote) *GitConfig {
+	remoteConfig := remote.Config()
+
+	remoteName := remoteConfig.Name
+	// ignore error here because we rely on the the URL being valid here
+	hostName, _ := helpers.GetHostName(remoteConfig.URLs[0])
+
 	for _, git := range config.Git {
-		if strings.Contains(remoteUrl, git.Remote.Host) {
+		if git.Remote.Name == remoteName && git.Remote.Host == hostName {
 			return &git
 		}
 	}
-	return nil
+
+	// if no corresponding configuration was found for the given Remote,
+	// a new one is returned without the Auth
+	return &GitConfig{Remote: &GitRemote{Name: remoteConfig.Name, Host: hostName}}
 }
 
 func (host GitConfig) HasBasicAuth() bool {

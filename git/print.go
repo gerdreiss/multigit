@@ -43,7 +43,7 @@ func PrintRepoWithBranchNames(repoPath string, listLocalBranches bool) error {
 	remoteBranches := []string{}
 	remotes, err := repo.Remotes()
 	if err == nil && len(remotes) > 0 {
-		gitConfig := config.GetGitConfig(remotes[0].Config().URLs[0])
+		gitConfig := config.GetGitConfig(remotes[0])
 		remoteBranches, err = getRemoteBranchNames(repo, gitConfig.Remote.Name)
 		if err == nil {
 			remoteName = gitConfig.Remote.Name

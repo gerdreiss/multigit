@@ -28,8 +28,11 @@ var configReadCmd = &cobra.Command{
 
 Examples:
   mgit config read
-  mgit config read git.remote-name
-  mgit config read git.remote-name git.auth-method`,
+  mgit config read git.0.remote.name
+  mgit config read git.0.remote.name git.0.remote.host
+
+Currently, only printing the entire configuration works.
+`,
 
 	Run: exe.PrintConfig,
 }
@@ -41,9 +44,11 @@ var configWriteCmd = &cobra.Command{
 	Long: `Write one or more configuration values in the format name=value.
 
 Examples:
-  mgit config write git.remote-name=origin
-  mgit config write git.auth-method=basic
-  mgit config write git.basic-auth.username=xyz`,
+  mgit config write git.0.remote-name=origin
+  mgit config write git.0.auth-method=basic
+  mgit config write git.0.basic-auth.username=xyz
+  
+This is not implemented yet!`,
 
 	Args: validArgs,
 	Run:  exe.WriteConfig,

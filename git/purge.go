@@ -42,7 +42,7 @@ func PurgeLocalBranches(repoPath string, exclude []string) error {
 	remoteBranches := []string{}
 	remotes, err := repo.Remotes()
 	if err == nil {
-		gitConfig := config.GetGitConfig(remotes[0].Config().URLs[0])
+		gitConfig := config.GetGitConfig(remotes[0])
 		remoteBranches, _ = getRemoteBranchNames(repo, gitConfig.Remote.Name)
 	}
 
