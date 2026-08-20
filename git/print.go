@@ -10,7 +10,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/gerdreiss/mgit/config"
 	"github.com/gerdreiss/mgit/helpers"
 	"github.com/go-git/go-git/v5"
 )
@@ -39,14 +38,15 @@ func PrintRepoWithBranchNames(repoPath string, listLocalBranches bool) error {
 		return nil
 	}
 
-	remoteName := ""
-	remoteBranches := []string{}
-	remotes, err := repo.Remotes()
-	if err == nil && len(remotes) > 0 {
-		gitConfig := config.GetGitConfig(remotes[0])
-		remoteBranches, err = getRemoteBranchNames(repo, gitConfig.Remote.Name)
-		if err == nil {
-			remoteName = gitConfig.Remote.Name
+	remoteBranches, err := getRemoteBranchNames(repo)
+	if err != nil {
+		remoteBranches = []string{}
+	}
+
+	currentRemoteBranch := "untracked"
+	for _, remoteBranch := range remoteBranches {
+		if helpers.SuffixAfterLast(remoteBranch, "/") == currentBranch {
+			currentRemoteBranch = remoteBranch
 		}
 	}
 
@@ -65,7 +65,6 @@ func PrintRepoWithBranchNames(repoPath string, listLocalBranches bool) error {
 	}
 
 	isCurrentBranchClean := status.IsClean()
-	isCurrentBranchTracked := slices.Contains(remoteBranches, currentBranch)
 
 	// Print out all the info
 	fmt.Printf(
@@ -76,8 +75,8 @@ func PrintRepoWithBranchNames(repoPath string, listLocalBranches bool) error {
 		currentBranch,
 		red,
 		helpers.IfElse(isCurrentBranchClean, "", "*"),
-		helpers.IfElse(isCurrentBranchTracked, blue, grey),
-		helpers.IfElse(isCurrentBranchTracked, remoteName+"/"+currentBranch, "untracked"),
+		helpers.IfElse(currentRemoteBranch == "untracked", grey, blue),
+		currentRemoteBranch,
 		red,
 		reset,
 	)
@@ -95,7 +94,12 @@ func PrintRepoWithBranchNames(repoPath string, listLocalBranches bool) error {
 		if len(localBranches) > 0 {
 			for _, localBranch := range localBranches {
 				spaces := strings.Repeat(" ", lineLength-len(localBranch))
-				isLocalBranchTracked := slices.Contains(remoteBranches, localBranch)
+				localBranchRemote := "untracked"
+				for _, remoteBranch := range remoteBranches {
+					if localBranch == helpers.SuffixAfterLast(remoteBranch, "/") {
+						localBranchRemote = remoteBranch
+					}
+				}
 
 				fmt.Printf(
 					"%s%s[%s%s%s][%s%s%s]%s\n",
@@ -104,8 +108,8 @@ func PrintRepoWithBranchNames(repoPath string, listLocalBranches bool) error {
 					green,
 					localBranch,
 					red,
-					helpers.IfElse(isLocalBranchTracked, blue, grey),
-					helpers.IfElse(isLocalBranchTracked, remoteName+"/"+localBranch, "untracked"),
+					helpers.IfElse(localBranchRemote == "untracked", grey, blue),
+					localBranchRemote,
 					red,
 					reset,
 				)

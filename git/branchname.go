@@ -71,7 +71,7 @@ func getDefaultLocalBranchName(repo *git.Repository) (string, error) {
 	}
 
 	// Try common branch names
-	commonBranches := []string{"main", "master", "develop", "dev"}
+	commonBranches := []string{"main", "master", "develop"}
 	for _, branch := range commonBranches {
 		ref := plumbing.NewBranchReferenceName(branch)
 		if _, err := repo.Reference(ref, true); err == nil {
@@ -91,7 +91,7 @@ func getLocalBranchNames(repo *git.Repository) ([]string, error) {
 		return branchNames, err
 	}
 
-	_ = branches.ForEach(func(ref *plumbing.Reference) error {
+	branches.ForEach(func(ref *plumbing.Reference) error {
 		branchNames = append(branchNames, ref.Name().Short())
 		return nil
 	})
@@ -99,29 +99,29 @@ func getLocalBranchNames(repo *git.Repository) ([]string, error) {
 	return branchNames, nil
 }
 
-func getRemoteBranchNames(repo *git.Repository, remoteName string) ([]string, error) {
-	// Get the remote
-	remote, err := repo.Remote(remoteName)
-	if err != nil {
-		return []string{}, fmt.Errorf("failed to get remote '%s': %w", remoteName, err)
+// getRemoteBranchNames returns the names of remote branch names
+func getRemoteBranchNames(repo *git.Repository) ([]string, error) {
+	var branchNames []string
+
+	remotes, err := repo.Remotes()
+	if err != nil || len(remotes) == 0 {
+		return branchNames, nil
 	}
+
+	remoteName := remotes[0].Config().Name
 
 	// List remote references
-	opts := git.ListOptions{
-		Auth: auth.GetAuthMethod(remote),
-	}
-	refs, err := remote.List(&opts)
+	refs, err := remotes[0].List(&git.ListOptions{Auth: auth.GetAuthMethod(remotes[0])})
 	if err != nil {
-		return []string{}, fmt.Errorf("failed to list remote references: %w", err)
+		return branchNames, fmt.Errorf("failed to list remote references: %w", err)
 	}
 
-	var branchNames []string
 	for _, ref := range refs {
 		// Filter only branch references (not tags, not HEAD)
 		if ref.Name().IsBranch() {
 			// Get the branch name without the remote prefix
 			// e.g., "refs/remotes/origin/main" -> "main"
-			branchNames = append(branchNames, ref.Name().Short())
+			branchNames = append(branchNames, remoteName+"/"+ref.Name().Short())
 		}
 	}
 
