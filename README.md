@@ -88,8 +88,11 @@ Flags:
 ```
 
 ## configuration
-mgit looks for the configuration in the current directory, or under `/etc/mgit`, `/usr/local/etc/mgit`, or `$HOME/.mgit/`
+mgit looks for the configuration in the current directory, or under `$HOME/.mgit/`
+
 the file should be called `config` or `config.yaml`
+
+the configuration is only necessary if some kind of authentication with the GIT server is required
 ```
 git:
   - remote:
@@ -111,11 +114,5 @@ git:
       token:
         token: the-token-xxx
 ```
-## default configuration
-```
-git:
-  - remote:
-      name: origin 
-      host: github.com
-```
+
 
