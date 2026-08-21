@@ -45,15 +45,13 @@ type AppConfig struct {
 var config AppConfig
 
 func Load() {
-	v := viper.New()
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
 
-	v.SetConfigName("config")
-	v.SetConfigType("yaml")
+	viper.AddConfigPath("$HOME/.mgit/")
+	viper.AddConfigPath(".")
 
-	v.AddConfigPath("$HOME/.mgit/")
-	v.AddConfigPath(".")
-
-	err := v.ReadInConfig()
+	err := viper.ReadInConfig()
 	if err != nil {
 		switch err.(type) {
 		case viper.ConfigFileNotFoundError:
@@ -64,7 +62,7 @@ func Load() {
 	}
 
 	// Unmarshal the config file into the AppConfig struct
-	err = v.Unmarshal(&config)
+	err = viper.Unmarshal(&config)
 	if err != nil {
 		log.Fatalf("Unable to decode into struct, %v\n", err)
 	}
@@ -118,12 +116,12 @@ func Get(key string, displayJson bool) (string, error) {
 		return "", fmt.Errorf("invalid key. The index can be maximal %d", len(config.Git))
 	}
 
-	yamlstring, err := yaml.Marshal(config)
+	yamlbytes, err := yaml.Marshal(config)
 	if err != nil {
 		return "", err
 	}
 
-	value, err := helpers.GetValue(string(yamlstring), key)
+	value, err := helpers.GetValue(string(yamlbytes), key)
 	if err != nil {
 		return "", err
 	}
@@ -170,5 +168,7 @@ func Set(key string, value string) error {
 		return err
 	}
 
-	return yaml.Unmarshal([]byte(updated), &config)
+	fmt.Printf("TODO: still needs to write this into the config:\n%s\n", updated)
+
+	return nil
 }
