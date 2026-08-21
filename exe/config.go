@@ -39,8 +39,8 @@ func PrintConfig(cmd *cobra.Command, args []string) {
 		for _, key := range args {
 			value, err := config.Get(key, displayJson)
 			if err != nil {
-				fmt.Printf("err: %v\n", err)
-				return
+				fmt.Printf("Error reading value for key %s: %v\n", key, err)
+				continue
 			}
 
 			fmt.Println(value)
@@ -55,6 +55,5 @@ func WriteConfig(cmd *cobra.Command, args []string) {
 		if err != nil {
 			fmt.Printf("Error setting value %s for key %s: %v\n", parts[1], parts[0], err)
 		}
-
 	}
 }
