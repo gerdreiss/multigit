@@ -53,14 +53,21 @@ func Load() {
 	v.AddConfigPath("$HOME/.mgit/")
 	v.AddConfigPath(".")
 
-	_ = v.ReadInConfig()
-
-	// Unmarshal the config file into the AppConfig struct
-	err := v.Unmarshal(&config)
+	err := v.ReadInConfig()
 	if err != nil {
-		log.Fatalf("Unable to decode into struct, %v", err)
+		switch err.(type) {
+		case viper.ConfigFileNotFoundError:
+			// ignore
+		default:
+			log.Fatalf("Unable to read config: %v\n", err)
+		}
 	}
 
+	// Unmarshal the config file into the AppConfig struct
+	err = v.Unmarshal(&config)
+	if err != nil {
+		log.Fatalf("Unable to decode into struct, %v\n", err)
+	}
 }
 
 func GetAppConfig() *AppConfig {
@@ -158,5 +165,10 @@ func Set(key string, value string) error {
 		return err
 	}
 
-	return helpers.SetValue(string(yamlstring), key, value)
+	updated, err := helpers.SetValue(string(yamlstring), key, value)
+	if err != nil {
+		return err
+	}
+
+	return yaml.Unmarshal([]byte(updated), &config)
 }

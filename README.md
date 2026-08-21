@@ -133,7 +133,7 @@ git:
       name: origin 
       host: github.com
 
-  - remote
+  - remote:
       name: origin
       host: gitlab.com
     auth:
@@ -141,7 +141,7 @@ git:
         username: xyz
         password: xxx
 
-  - remote
+  - remote:
       name: custom
       host: enterprise.host
     auth:

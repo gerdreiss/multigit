@@ -59,6 +59,6 @@ func GetValue(yamlstring string, path string) (any, error) {
 	return current, nil
 }
 
-func SetValue(yamlstring string, path string, value string) error {
-	return fmt.Errorf("NOT IMPLEMENTED")
+func SetValue(yamlstring string, path string, value string) (string, error) {
+	return "", fmt.Errorf("NOT IMPLEMENTED")
 }
