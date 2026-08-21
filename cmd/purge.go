@@ -4,11 +4,8 @@ Copyright © 2026 Gerd Reiss gerd@reiss.pro
 package cmd
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/gerdreiss/mgit/exe"
 	"github.com/gerdreiss/mgit/helpers"
@@ -37,7 +34,7 @@ func purgeLocalBranches(cmd *cobra.Command, args []string) {
 		exclude = []string{}
 	}
 
-	if sureToProceed() {
+	if helpers.SureToProceed("⚠️ Are you sure to proceed? Have you checked with `mgit list -b`? (N/y) ") {
 		exe.PurgeLocalBranches(rootDir, exclude)
 	}
 }
@@ -46,20 +43,4 @@ func init() {
 	rootCmd.AddCommand(purgeCmd)
 
 	purgeCmd.Flags().StringSliceP("exclude", "x", []string{}, "Exclude the repositories with the names given here from purging.")
-}
-
-func sureToProceed() bool {
-	reader := bufio.NewReader(os.Stdin)
-
-	fmt.Print("⚠️ Are you sure to proceed? Have you checked with `mgit list -b`? (N/y) ")
-
-	input, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ Error reading input: %s\n", err)
-		return false
-	}
-
-	response := strings.ToLower(strings.TrimSpace(input))
-
-	return response == "y"
 }
