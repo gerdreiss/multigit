@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 
@@ -168,7 +169,15 @@ func Set(key string, value string) error {
 		return err
 	}
 
-	fmt.Printf("TODO: still needs to write this into the config:\n%s\n", updated)
+	yaml.Unmarshal([]byte(updated), &config)
+
+	file, err := os.OpenFile(viper.ConfigFileUsed(), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+
+	viper.Set("git", config.Git)
+	viper.WriteConfigTo(file)
 
 	return nil
 }
