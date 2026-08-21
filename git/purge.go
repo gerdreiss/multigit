@@ -4,6 +4,7 @@ Copyright © 2026 Gerd Reiss gerd@reiss.pro
 package git
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -51,14 +52,32 @@ func PurgeLocalBranches(repoPath string, exclude []string) error {
 			continue
 		}
 
-		err = repo.Storer.RemoveReference(plumbing.NewBranchReferenceName(localBranch))
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "❌ Failed to delete branch %s of repository %s: %v\n", localBranch, repoName, err)
-			return nil
+		if sureToProceed(localBranch) {
+			err = repo.Storer.RemoveReference(plumbing.NewBranchReferenceName(localBranch))
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "❌ Failed to delete branch %s of repository %s: %v\n", localBranch, repoName, err)
+				return nil
+			}
 		}
 
 		fmt.Printf("✅ branch %s of repository %s deleted successfully\n", localBranch, repoName)
 	}
 
 	return nil
+}
+
+func sureToProceed(localBranch string) bool {
+	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Printf("⚠️ The branch %s is about to be deleted. Proceed? (N/y) ", localBranch)
+
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "❌ Error reading input: %s\n", err)
+		return false
+	}
+
+	response := strings.ToLower(strings.TrimSpace(input))
+
+	return response == "y"
 }
