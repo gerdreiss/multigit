@@ -59,10 +59,12 @@ func validArgs(cmd *cobra.Command, args []string) error {
 		if !strings.Contains(arg, "=") {
 			return fmt.Errorf("invalid format: '%s' (expected name=value)", arg)
 		}
-		// Optional: validate that both name and value are non-empty
 		parts := strings.SplitN(arg, "=", 2)
 		if parts[0] == "" {
 			return fmt.Errorf("empty key in argument: '%s'", arg)
+		}
+		if parts[1] == "" {
+			return fmt.Errorf("empty value in argument: '%s'", arg)
 		}
 	}
 	return nil

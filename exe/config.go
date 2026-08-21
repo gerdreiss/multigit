@@ -3,6 +3,7 @@ package exe
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/gerdreiss/mgit/config"
 	"github.com/spf13/cobra"
@@ -48,5 +49,12 @@ func PrintConfig(cmd *cobra.Command, args []string) {
 }
 
 func WriteConfig(cmd *cobra.Command, args []string) {
-	fmt.Println("NOT IMPLEMENTED")
+	for _, arg := range args {
+		parts := strings.SplitN(arg, "=", 2)
+		err := config.Set(parts[0], parts[1])
+		if err != nil {
+			fmt.Printf("Error setting value %s for key %s: %v\n", parts[1], parts[0], err)
+		}
+
+	}
 }
