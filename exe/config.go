@@ -18,19 +18,35 @@ func PrintConfig(cmd *cobra.Command, args []string) {
 
 	appConfig := config.GetAppConfig()
 
-	if displayJson {
-		prettyJSON, err := json.MarshalIndent(appConfig, "", "  ")
-		if err != nil {
-			fmt.Printf("Error marshaling config: %v\n", err)
-			return
+	if len(args) == 0 {
+		if displayJson {
+			prettyJSON, err := json.MarshalIndent(appConfig, "", "  ")
+			if err != nil {
+				fmt.Printf("Error marshaling config: %v\n", err)
+				return
+			}
+			fmt.Println(string(prettyJSON))
+		} else {
+			yamlData, err := yaml.Marshal(appConfig)
+			if err != nil {
+				fmt.Printf("Error marshaling config to YAML: %v\n", err)
+				return
+			}
+			fmt.Println(string(yamlData))
 		}
-		fmt.Println(string(prettyJSON))
 	} else {
-		yamlData, err := yaml.Marshal(appConfig)
-		if err != nil {
-			fmt.Printf("Error marshaling config to YAML: %v\n", err)
-			return
+		for _, key := range args {
+			value, err := config.Get(key, displayJson)
+			if err != nil {
+				fmt.Printf("err: %v\n", err)
+				return
+			}
+
+			fmt.Println(value)
 		}
-		fmt.Println(string(yamlData))
 	}
+}
+
+func WriteConfig(cmd *cobra.Command, args []string) {
+	fmt.Println("NOT IMPLEMENTED")
 }

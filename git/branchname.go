@@ -88,7 +88,7 @@ func getLocalBranchNames(repo *git.Repository) ([]string, error) {
 		return branchNames, err
 	}
 
-	branches.ForEach(func(ref *plumbing.Reference) error {
+	_ = branches.ForEach(func(ref *plumbing.Reference) error {
 		branchNames = append(branchNames, ref.Name().Short())
 		return nil
 	})

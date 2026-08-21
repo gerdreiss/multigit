@@ -1,11 +1,16 @@
 package config
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
+	"strconv"
+	"strings"
 
 	"github.com/gerdreiss/mgit/helpers"
 	"github.com/go-git/go-git/v5"
 	"github.com/spf13/viper"
+	"go.yaml.in/yaml/v3"
 )
 
 type TokenAuthConfig struct {
@@ -87,4 +92,71 @@ func (host GitConfig) HasBasicAuth() bool {
 
 func (host GitConfig) HasTokenAuth() bool {
 	return host.Auth != nil && host.Auth.Token != nil
+}
+
+func Get(key string, displayJson bool) (string, error) {
+	key = strings.TrimSpace(key)
+	if len(key) < 5 {
+		return "", fmt.Errorf("invalid key. It should start with at least 'git.N' where N is a valid index optionally followed by either '.remote.' or '.auth.'")
+	}
+	path := strings.Split(key, ".")
+	if len(path) < 2 {
+		return "", fmt.Errorf("invalid key. It should start with at least 'git.N' where N is a valid index optionally followed by either '.remote.' or '.auth.'")
+	}
+	idx, err := strconv.Atoi(path[1])
+	if err != nil {
+		return "", fmt.Errorf("invalid key. It should start with git.N where N is a valid index")
+	}
+	if idx > len(config.Git) {
+		return "", fmt.Errorf("invalid key. The index can be maximal %d", len(config.Git))
+	}
+
+	yamlstring, err := yaml.Marshal(config)
+	if err != nil {
+		return "", err
+	}
+
+	value, err := helpers.GetValue(string(yamlstring), key)
+	if err != nil {
+		return "", err
+	}
+
+	if displayJson {
+		prettyJSON, err := json.MarshalIndent(value, "", "  ")
+		if err != nil {
+			return "", fmt.Errorf("error marshaling config: %v", err)
+		}
+		return string(prettyJSON), nil
+	}
+
+	yamlData, err := yaml.Marshal(value)
+	if err != nil {
+		return "", fmt.Errorf("error marshaling config to YAML: %v", err)
+	}
+	return string(yamlData), nil
+}
+
+func Set(key string, value string) error {
+	key = strings.TrimSpace(key)
+	if len(key) < 5 {
+		return fmt.Errorf("invalid key. It should start with at least 'git.N' where N is a valid index optionally followed by either '.remote.' or '.auth.'")
+	}
+	path := strings.Split(key, ".")
+	if len(path) < 2 {
+		return fmt.Errorf("invalid key. It should start with at least 'git.N' where N is a valid index optionally followed by either '.remote.' or '.auth.'")
+	}
+	idx, err := strconv.Atoi(path[1])
+	if err != nil {
+		return fmt.Errorf("invalid key. It should start with git.N where N is a valid index")
+	}
+	if idx > len(config.Git) {
+		return fmt.Errorf("invalid key. The index can be maximal %d", len(config.Git))
+	}
+
+	yamlstring, err := yaml.Marshal(config)
+	if err != nil {
+		return err
+	}
+
+	return helpers.SetValue(string(yamlstring), key, value)
 }

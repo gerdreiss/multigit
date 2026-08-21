@@ -27,14 +27,53 @@ Use "mgit [command] --help" for more information about a command.
 
 ## mgit config
 ```
-Read and display the current configuration values
+Commands to manage application configuration
 
 Usage:
-  mgit config [flags]
+  mgit config [command]
+
+Available Commands:
+  read        Read configuration
+  write       Write configuration values
 
 Flags:
   -h, --help   help for config
+
+Use "mgit config [command] --help" for more information about a command.
+```
+
+## mgit config read
+```
+Read and display the current configuration values.
+        When calling without arguments, the entire configuration is displayed. 
+        You can display a subselection of the configuration by providing the names of configuration values.
+
+Examples:
+  mgit config read
+  mgit config read git.1.remote.name
+  mgit config read git.1.remote.name git.2.auth.token.token
+
+Usage:
+  mgit config read [name] [flags]
+
+Flags:
+  -h, --help   help for read
   -j, --json   Print configuration as JSON.
+```
+
+## mgit config write
+```
+Write one or more configuration values in the format name=value.
+
+Examples:
+  mgit config write git.1.remote.name=origin
+  mgit config write git.2.auth.token.token=xyz
+
+Usage:
+  mgit config write <name=value> [name=value ...] [flags]
+
+Flags:
+  -h, --help   help for write
 ```
 
 ## mgit list
