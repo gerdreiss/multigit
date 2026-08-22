@@ -3,6 +3,7 @@ module github.com/gerdreiss/mgit
 go 1.27.0
 
 require (
+	github.com/divideandconquer/go-merge v0.0.0-20160829212531-bc6b3a394b4e
 	github.com/go-git/go-git/v5 v5.19.2
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0

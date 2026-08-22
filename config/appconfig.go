@@ -5,42 +5,46 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 
+	"github.com/divideandconquer/go-merge/merge"
 	"github.com/gerdreiss/mgit/helpers"
+	"github.com/gerdreiss/mgit/yamlpath"
 	"github.com/go-git/go-git/v5"
 	"github.com/spf13/viper"
 	"go.yaml.in/yaml/v3"
 )
 
 type TokenAuthConfig struct {
-	Token string `mapstructure:"token"`
+	Token string `mapstructure:"token" yaml:"token,omitempty"`
 }
 
 type BasicAuthConfig struct {
-	Username string `mapstructure:"username"`
-	Password string `mapstructure:"password"`
+	Username string `mapstructure:"username" yaml:"username,omitempty"`
+	Password string `mapstructure:"password" yaml:"password,omitempty"`
 }
 
 type GitAuth struct {
 	// Exactly one of the following blocks will be meaningful based on AuthMethod:
-	Basic *BasicAuthConfig `mapstructure:"basic"`
-	Token *TokenAuthConfig `mapstructure:"token"`
+	Basic *BasicAuthConfig `mapstructure:"basic" yaml:"basic,omitempty"`
+	Token *TokenAuthConfig `mapstructure:"token" yaml:"token,omitempty"`
 }
 
 type GitRemote struct {
-	Name string `mapstructure:"name"`
-	Host string `mapstructure:"host"`
+	Name string `mapstructure:"name" yaml:"name,omitempty"`
+	Host string `mapstructure:"host" yaml:"host,omitempty"`
 }
 
 type GitConfig struct {
-	Remote *GitRemote `mapstructure:"remote"`
-	Auth   *GitAuth   `mapstructure:"auth"`
+	Remote *GitRemote `mapstructure:"remote" yaml:"remote,omitempty"`
+	Auth   *GitAuth   `mapstructure:"auth" yaml:"auth,omitempty"`
 }
 
 type AppConfig struct {
-	Git []GitConfig `mapstructure:"git"`
+	Git []GitConfig `mapstructure:"git" yaml:"git,omitempty"`
 }
 
 var config AppConfig
@@ -69,11 +73,20 @@ func Load() {
 	}
 }
 
+// GetAppConfig returns the entire configuration
 func GetAppConfig() *AppConfig {
 	return &config
 }
 
-// GetGitConfig return a configuration for the given Remote even if none exists
+func (host GitConfig) HasBasicAuth() bool {
+	return host.Auth != nil && host.Auth.Basic != nil
+}
+
+func (host GitConfig) HasTokenAuth() bool {
+	return host.Auth != nil && host.Auth.Token != nil
+}
+
+// GetGitConfig returns a configuration for the given Remote even if none exists
 func GetGitConfig(remote *git.Remote) *GitConfig {
 	remoteConfig := remote.Config()
 
@@ -90,14 +103,6 @@ func GetGitConfig(remote *git.Remote) *GitConfig {
 	// if no corresponding configuration was found for the given Remote,
 	// a new one is returned without the Auth
 	return &GitConfig{Remote: &GitRemote{Name: remoteConfig.Name, Host: hostName}}
-}
-
-func (host GitConfig) HasBasicAuth() bool {
-	return host.Auth != nil && host.Auth.Basic != nil
-}
-
-func (host GitConfig) HasTokenAuth() bool {
-	return host.Auth != nil && host.Auth.Token != nil
 }
 
 func Get(key string, displayJson bool) (string, error) {
@@ -122,7 +127,7 @@ func Get(key string, displayJson bool) (string, error) {
 		return "", err
 	}
 
-	value, err := helpers.GetValue(string(yamlbytes), key)
+	value, err := yamlpath.GetValue(string(yamlbytes), key)
 	if err != nil {
 		return "", err
 	}
@@ -159,17 +164,21 @@ func Set(key string, value string) error {
 		return fmt.Errorf("invalid key. The index can be maximal %d", len(config.Git))
 	}
 
-	yamlstring, err := yaml.Marshal(config)
+	newGitConfig, err := newGitConfigFromKeyValue(key, value)
 	if err != nil {
 		return err
 	}
 
-	updated, err := helpers.SetValue(string(yamlstring), key, value)
-	if err != nil {
-		return err
+	if idx == len(config.Git) {
+		config.Git = append(config.Git, *newGitConfig)
+	} else {
+		mergedGitConfig := merge.Merge(&config.Git[idx], newGitConfig)
+		castGitConfig, ok := mergedGitConfig.(*GitConfig)
+		if !ok {
+			return fmt.Errorf("the merge changed the type from GitConfig to %v\n", reflect.TypeOf(mergedGitConfig))
+		}
+		config.Git[idx] = *castGitConfig
 	}
-
-	yaml.Unmarshal([]byte(updated), &config)
 
 	file, err := os.OpenFile(viper.ConfigFileUsed(), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
@@ -180,4 +189,29 @@ func Set(key string, value string) error {
 	viper.WriteConfigTo(file)
 
 	return nil
+}
+
+func newGitConfigFromKeyValue(key string, value string) (*GitConfig, error) {
+	segments := strings.Split(key, ".")
+	subpath := segments[2:]
+	slices.Reverse(subpath)
+
+	var newvalue any = value
+	for _, segment := range subpath {
+		newvalue = map[string]any{
+			segment: newvalue,
+		}
+	}
+
+	bytes, err := json.Marshal(newvalue)
+	if err != nil {
+		return nil, err
+	}
+
+	var newGitConfig GitConfig
+	if err := json.Unmarshal(bytes, &newGitConfig); err != nil {
+		return nil, err
+	}
+
+	return &newGitConfig, nil
 }

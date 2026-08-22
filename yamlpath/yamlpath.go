@@ -1,8 +1,7 @@
-package helpers
+package yamlpath
 
 import (
 	"fmt"
-	"slices"
 	"strconv"
 	"strings"
 
@@ -58,48 +57,4 @@ func GetValue(yamlstring string, path string) (any, error) {
 	}
 
 	return current, nil
-}
-
-func SetValue(yamlstring string, path string, value string) (string, error) {
-	var data map[string][]any
-	err := yaml.Unmarshal([]byte(yamlstring), &data)
-	if err != nil {
-		return "", err
-	}
-
-	var newvalue any = value
-
-	segments := strings.Split(path, ".")
-	subpath := segments[2:]
-	slices.Reverse(subpath)
-	for _, segment := range subpath {
-		newvalue = map[string]any{
-			segment: newvalue,
-		}
-	}
-
-	idx, err := strconv.Atoi(segments[1])
-	if err != nil {
-		return "", err
-	}
-
-	gits := data["git"]
-	ngits := len(gits)
-	if idx > ngits {
-		return "", fmt.Errorf("index out of bounds")
-	}
-	if idx == ngits {
-		gits = append(gits, newvalue)
-	} else {
-		return "", fmt.Errorf("overriding values is not yet implemented")
-	}
-
-	data["git"] = gits
-
-	result, err := yaml.Marshal(data)
-	if err != nil {
-		return "", err
-	}
-
-	return string(result), nil
 }
