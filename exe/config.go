@@ -23,14 +23,14 @@ func PrintConfig(cmd *cobra.Command, args []string) {
 		if displayJson {
 			prettyJSON, err := json.MarshalIndent(appConfig, "", "  ")
 			if err != nil {
-				fmt.Printf("Error marshaling config: %v\n", err)
+				fmt.Printf("E❌ rror marshaling config: %v\n", err)
 				return
 			}
 			fmt.Println(string(prettyJSON))
 		} else {
 			yamlData, err := yaml.Marshal(appConfig)
 			if err != nil {
-				fmt.Printf("Error marshaling config to YAML: %v\n", err)
+				fmt.Printf("❌ Error marshaling config to YAML: %v\n", err)
 				return
 			}
 			fmt.Println(string(yamlData))
@@ -39,7 +39,7 @@ func PrintConfig(cmd *cobra.Command, args []string) {
 		for _, key := range args {
 			value, err := config.Get(key, displayJson)
 			if err != nil {
-				fmt.Printf("Error reading value for key %s: %v\n", key, err)
+				fmt.Printf("❌ Error reading value for key %s: %v\n", key, err)
 				continue
 			}
 
@@ -53,7 +53,7 @@ func WriteConfig(cmd *cobra.Command, args []string) {
 		parts := strings.SplitN(arg, "=", 2)
 		err := config.Set(parts[0], parts[1])
 		if err != nil {
-			fmt.Printf("Error setting value %s for key %s: %v\n", parts[1], parts[0], err)
+			fmt.Printf("❌ Error setting value %s for key %s: %v\n", parts[1], parts[0], err)
 		}
 	}
 }
