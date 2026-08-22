@@ -107,19 +107,9 @@ func GetGitConfig(remote *git.Remote) *GitConfig {
 
 func Get(key string, displayJson bool) (string, error) {
 	key = strings.TrimSpace(key)
-	if len(key) < 5 {
-		return "", fmt.Errorf("invalid key. It should start with at least 'git.N' where N is a valid index optionally followed by either '.remote.' or '.auth.'")
-	}
-	path := strings.Split(key, ".")
-	if len(path) < 2 {
-		return "", fmt.Errorf("invalid key. It should start with at least 'git.N' where N is a valid index optionally followed by either '.remote.' or '.auth.'")
-	}
-	idx, err := strconv.Atoi(path[1])
+	_, err := validateGetIndex(key)
 	if err != nil {
-		return "", fmt.Errorf("invalid key. It should start with git.N where N is a valid index")
-	}
-	if idx > len(config.Git) {
-		return "", fmt.Errorf("invalid key. The index can be maximal %d", len(config.Git))
+		return "", err
 	}
 
 	yamlbytes, err := yaml.Marshal(config)
@@ -149,19 +139,9 @@ func Get(key string, displayJson bool) (string, error) {
 
 func Set(key string, value string) error {
 	key = strings.TrimSpace(key)
-	if len(key) < 5 {
-		return fmt.Errorf("invalid key. It should start with at least 'git.N' where N is a valid index optionally followed by either '.remote.' or '.auth.'")
-	}
-	path := strings.Split(key, ".")
-	if len(path) < 2 {
-		return fmt.Errorf("invalid key. It should start with at least 'git.N' where N is a valid index optionally followed by either '.remote.' or '.auth.'")
-	}
-	idx, err := strconv.Atoi(path[1])
+	idx, err := validateGetIndex(key)
 	if err != nil {
-		return fmt.Errorf("invalid key. It should start with git.N where N is a valid index")
-	}
-	if idx > len(config.Git) {
-		return fmt.Errorf("invalid key. The index can be maximal %d", len(config.Git))
+		return err
 	}
 
 	newGitConfig, err := newGitConfigFromKeyValue(key, value)
@@ -189,6 +169,25 @@ func Set(key string, value string) error {
 	viper.WriteConfigTo(file)
 
 	return nil
+}
+
+func validateGetIndex(key string) (int, error) {
+	if len(key) < 5 {
+		return -1, fmt.Errorf("invalid key. It should start with at least 'git.N' where N is a valid index optionally followed by either '.remote.' or '.auth.'")
+	}
+	path := strings.Split(key, ".")
+	if len(path) < 2 {
+		return -1, fmt.Errorf("invalid key. It should start with at least 'git.N' where N is a valid index optionally followed by either '.remote.' or '.auth.'")
+	}
+	idx, err := strconv.Atoi(path[1])
+	if err != nil {
+		return -1, fmt.Errorf("invalid key. It should start with git.N where N is a valid index")
+	}
+	if idx > len(config.Git) {
+		return -1, fmt.Errorf("invalid key. The index can be maximal %d", len(config.Git))
+	}
+
+	return idx, nil
 }
 
 func newGitConfigFromKeyValue(key string, value string) (*GitConfig, error) {
