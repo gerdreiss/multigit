@@ -2,8 +2,6 @@
 
 MultiGIT is a GIT helper for executing a subset of git commands on multiple repositories.
 
-$${\color{red}Note! \space This \space tool \space does \space not \space guarantee \space flawless \space functioning \space - \space use \space on \space your \space own \space risk!}$$
-
 ## mgit -h
 ```
 mgit is a GIT helper for executing a subset of git commands on multiple repositories.
@@ -109,7 +107,7 @@ Flags:
 ```
 
 ## mgit purge
-$${\color{red}Careful! \space This \space will \space delete \space local \space branches - \space make \space sure \space you \space really \space want \space that!}$$
+### $\color{red}\textsf{Careful! This will delete local untracked branches - make sure you really want that!!}$
 ```
 Delete all local branches in all git repositories in the given directory that don't have a corresponding remote branch
 
