@@ -6,6 +6,7 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -62,8 +63,9 @@ func Load() {
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		switch err.(type) {
-		case viper.ConfigFileNotFoundError:
+		var configFileNotFoundError viper.ConfigFileNotFoundError
+		switch {
+		case errors.As(err, &configFileNotFoundError):
 			// ignore
 		default:
 			log.Fatalf("Unable to read config: %v\n", err)
@@ -95,12 +97,12 @@ func GetGitConfig(remote *git.Remote) *GitConfig {
 	remoteConfig := remote.Config()
 
 	remoteName := remoteConfig.Name
-	// ignore error here because we rely on the the URL being valid here
+	// ignore error here because we rely on the URL being valid here
 	hostName, _ := helpers.GetHostName(remoteConfig.URLs[0])
 
-	for _, git := range config.Git {
-		if git.Remote.Name == remoteName && git.Remote.Host == hostName {
-			return &git
+	for _, g := range config.Git {
+		if g.Remote.Name == remoteName && g.Remote.Host == hostName {
+			return &g
 		}
 	}
 
@@ -165,14 +167,15 @@ func Set(key string, value string) error {
 	}
 
 	file, err := os.OpenFile(viper.ConfigFileUsed(), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
 	if err != nil {
 		return err
 	}
 
 	viper.Set("git", config.Git)
-	viper.WriteConfigTo(file)
-
-	return nil
+	return viper.WriteConfigTo(file)
 }
 
 func validateGetIndex(key string) (int, error) {
