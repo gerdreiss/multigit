@@ -1,3 +1,4 @@
+// Package cmd
 /*
 Copyright © 2026 Gerd Reiss gerd@reiss.pro
 */

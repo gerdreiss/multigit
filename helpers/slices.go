@@ -1,3 +1,7 @@
+// Package helpers
+/*
+Copyright © 2026 Gerd Reiss gerd@reiss.pro
+*/
 package helpers
 
 // Deduplicate removes duplicate strings from a slice,
