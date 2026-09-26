@@ -53,11 +53,19 @@ func PrintConfig(cmd *cobra.Command, args []string) {
 }
 
 func WriteConfig(cmd *cobra.Command, args []string) {
-	for _, arg := range args {
-		parts := strings.SplitN(arg, "=", 2)
-		err := config.Set(parts[0], parts[1])
+	if len(args) > 0 {
+		for _, arg := range args {
+			parts := strings.SplitN(arg, "=", 2)
+			err := config.Set(parts[0], parts[1])
+			if err != nil {
+				fmt.Printf("❌ Error setting value %s for key %s: %v\n", parts[1], parts[0], err)
+			}
+		}
+		path, err := config.Write()
 		if err != nil {
-			fmt.Printf("❌ Error setting value %s for key %s: %v\n", parts[1], parts[0], err)
+			fmt.Printf("❌ Error writing configuration: %v\n", err)
+		} else {
+			fmt.Printf("✅ Configuration written to %s\n", path)
 		}
 	}
 }

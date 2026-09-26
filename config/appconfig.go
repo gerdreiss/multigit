@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"reflect"
 	"slices"
 	"strconv"
@@ -22,35 +21,6 @@ import (
 	"github.com/spf13/viper"
 	"go.yaml.in/yaml/v3"
 )
-
-type TokenAuthConfig struct {
-	Token string `mapstructure:"token" yaml:"token,omitempty"`
-}
-
-type BasicAuthConfig struct {
-	Username string `mapstructure:"username" yaml:"username,omitempty"`
-	Password string `mapstructure:"password" yaml:"password,omitempty"`
-}
-
-type GitAuth struct {
-	// Exactly one of the following blocks will be meaningful based on AuthMethod:
-	Basic *BasicAuthConfig `mapstructure:"basic" yaml:"basic,omitempty"`
-	Token *TokenAuthConfig `mapstructure:"token" yaml:"token,omitempty"`
-}
-
-type GitRemote struct {
-	Name string `mapstructure:"name" yaml:"name,omitempty"`
-	Host string `mapstructure:"host" yaml:"host,omitempty"`
-}
-
-type GitConfig struct {
-	Remote *GitRemote `mapstructure:"remote" yaml:"remote,omitempty"`
-	Auth   *GitAuth   `mapstructure:"auth" yaml:"auth,omitempty"`
-}
-
-type AppConfig struct {
-	Git []GitConfig `mapstructure:"git" yaml:"git,omitempty"`
-}
 
 var config AppConfig
 
@@ -77,6 +47,14 @@ func Load() {
 	if err != nil {
 		log.Fatalf("Unable to decode into struct, %v\n", err)
 	}
+}
+
+func Write() (string, error) {
+	path := viper.ConfigFileUsed()
+	if path == "" {
+		return "standard path", viper.SafeWriteConfig()
+	}
+	return path, viper.WriteConfig()
 }
 
 // GetAppConfig returns the entire configuration
@@ -166,16 +144,8 @@ func Set(key string, value string) error {
 		config.Git[idx] = *castGitConfig
 	}
 
-	file, err := os.OpenFile(viper.ConfigFileUsed(), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
-	defer func(file *os.File) {
-		_ = file.Close()
-	}(file)
-	if err != nil {
-		return err
-	}
-
 	viper.Set("git", config.Git)
-	return viper.WriteConfigTo(file)
+	return nil
 }
 
 func validateGetIndex(key string) (int, error) {

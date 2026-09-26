@@ -11,7 +11,7 @@
             "mode": "auto",
             "program": "${workspaceFolder}",
             "env": {},
-            "args": ["config", "write", "git.3.remote.host=vcs.rch.cloud"]
+            "args": ["config", "write", "git.0.workset.id=CC-11282 git.0.workset.branch=feature/CC282-bla"]
         }
     ]
 }
