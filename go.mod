@@ -1,6 +1,6 @@
 module github.com/gerdreiss/mgit
 
-go 1.27.0
+go 1.27.1
 
 require (
 	github.com/divideandconquer/go-merge v0.0.0-20160829212531-bc6b3a394b4e
