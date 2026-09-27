@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"reflect"
 	"slices"
 	"strconv"
@@ -18,6 +19,7 @@ import (
 	"github.com/gerdreiss/mgit/helpers"
 	"github.com/gerdreiss/mgit/yamlpath"
 	"github.com/go-git/go-git/v5"
+	"github.com/jorgebay/jsonnav"
 	"github.com/spf13/viper"
 	"go.yaml.in/yaml/v3"
 )
@@ -55,6 +57,16 @@ func Write() (string, error) {
 		return "standard path", viper.SafeWriteConfig()
 	}
 	return path, viper.WriteConfig()
+}
+
+func Delete() error {
+	config.Git = []GitConfig{}
+
+	path := viper.ConfigFileUsed()
+	if path != "" {
+		return os.Remove(path)
+	}
+	return nil
 }
 
 // GetAppConfig returns the entire configuration
@@ -148,13 +160,52 @@ func Set(key string, value string) error {
 	return nil
 }
 
+func Unset(key string) error {
+	key = strings.TrimSpace(key)
+
+	if strings.Count(key, ".") == 1 {
+		idx, err := validateGetIndex(key)
+		if err != nil {
+			return err
+		}
+
+		if idx+1 == len(config.Git) {
+			config.Git = config.Git[:idx]
+		} else {
+			config.Git = append(config.Git[:idx], config.Git[idx+1:]...)
+		}
+
+		return nil
+	}
+
+	bytes, err := json.Marshal(config)
+	if err != nil {
+		return err
+	}
+
+	v, err := jsonnav.Unmarshal(string(bytes))
+	if err != nil {
+		return err
+	}
+
+	if v.Get(key).Exists() {
+		jsonstring, err := jsonnav.Marshal(v.Delete(key))
+		if err != nil {
+			return err
+		}
+		return json.Unmarshal([]byte(jsonstring), &config)
+	}
+
+	return nil
+}
+
 func validateGetIndex(key string) (int, error) {
 	if len(key) < 5 {
-		return -1, fmt.Errorf("invalid key. It should start with at least 'git.N' where N is a valid index optionally followed by either '.remote.' or '.auth.'")
+		return -1, fmt.Errorf("invalid key. It should start with at least 'git.N' where N is a valid index optionally followed by either '.remote.', '.auth.' or '.workset.'")
 	}
 	path := strings.Split(key, ".")
 	if len(path) < 2 {
-		return -1, fmt.Errorf("invalid key. It should start with at least 'git.N' where N is a valid index optionally followed by either '.remote.' or '.auth.'")
+		return -1, fmt.Errorf("invalid key. It should start with at least 'git.N' where N is a valid index optionally followed by either '.remote.', '.auth.' or '.workset.'")
 	}
 	idx, err := strconv.Atoi(path[1])
 	if err != nil {

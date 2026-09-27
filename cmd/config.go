@@ -35,7 +35,7 @@ Examples:
 	Run: exe.PrintConfig,
 }
 
-// config write subcommand (optional)
+// config write subcommand
 var configWriteCmd = &cobra.Command{
 	Use:   "write <name=value> [name=value ...]",
 	Short: "Write configuration values",
@@ -47,6 +47,14 @@ Examples:
 
 	Args: validArgs,
 	Run:  exe.WriteConfig,
+}
+
+// config delete subcommand
+var configDeleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete the entire configuration",
+	Long:  "Delete the entire configuration",
+	Run:   exe.DeleteConfig,
 }
 
 func validArgs(cmd *cobra.Command, args []string) error {
@@ -72,7 +80,7 @@ func validArgs(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	configCmd.AddCommand(configReadCmd, configWriteCmd)
+	configCmd.AddCommand(configReadCmd, configWriteCmd, configDeleteCmd)
 	rootCmd.AddCommand(configCmd)
 
 	configReadCmd.Flags().BoolP("json", "j", false, "Print configuration as JSON.")

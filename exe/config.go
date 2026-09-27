@@ -69,3 +69,22 @@ func WriteConfig(cmd *cobra.Command, args []string) {
 		}
 	}
 }
+
+func DeleteConfig(cmd *cobra.Command, args []string) {
+	if len(args) > 0 {
+		for _, arg := range args {
+			err := config.Unset(arg)
+			if err != nil {
+				fmt.Printf("❌ Error deleting config for key %s: %v\n", arg, err)
+			}
+		}
+		path, err := config.Write()
+		if err != nil {
+			fmt.Printf("❌ Error writing configuration: %v\n", err)
+		} else {
+			fmt.Printf("✅ Configuration written to %s\n", path)
+		}
+	} else {
+		config.Delete()
+	}
+}
