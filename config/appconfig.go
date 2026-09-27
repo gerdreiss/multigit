@@ -193,7 +193,13 @@ func Unset(key string) error {
 		if err != nil {
 			return err
 		}
-		return json.Unmarshal([]byte(jsonstring), &config)
+		var newConfig AppConfig
+		err = json.Unmarshal([]byte(jsonstring), &newConfig)
+		if err != nil {
+			return err
+		}
+		config = newConfig
+		viper.Set("git", newConfig.Git)
 	}
 
 	return nil

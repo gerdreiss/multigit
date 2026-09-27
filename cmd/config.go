@@ -52,9 +52,14 @@ Examples:
 // config delete subcommand
 var configDeleteCmd = &cobra.Command{
 	Use:   "delete",
-	Short: "Delete the entire configuration",
-	Long:  "Delete the entire configuration",
-	Run:   exe.DeleteConfig,
+	Short: "Delete a part of or the entire configuration",
+	Long: `Delete a part of or the entire configuration.
+
+Examples:
+  mgit config delete
+  mgit config delete git.2.auth.token.token`,
+
+	Run: exe.DeleteConfig,
 }
 
 func validArgs(cmd *cobra.Command, args []string) error {
