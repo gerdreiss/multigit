@@ -85,6 +85,9 @@ func DeleteConfig(cmd *cobra.Command, args []string) {
 			fmt.Printf("✅ Configuration written to %s\n", path)
 		}
 	} else {
-		config.Delete()
+		err := config.Delete()
+		if err != nil {
+			fmt.Printf("❌ Error deleting configuration: %v\n", err)
+		}
 	}
 }
