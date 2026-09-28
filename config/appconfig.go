@@ -151,7 +151,7 @@ func Set(key string, value string) error {
 		mergedGitConfig := merge.Merge(&config.Git[idx], newGitConfig)
 		castGitConfig, ok := mergedGitConfig.(*GitConfig)
 		if !ok {
-			return fmt.Errorf("the merge changed the type from GitConfig to %v\n", reflect.TypeOf(mergedGitConfig))
+			return fmt.Errorf("the merge changed the type from GitConfig to %v", reflect.TypeOf(mergedGitConfig))
 		}
 		config.Git[idx] = *castGitConfig
 	}
