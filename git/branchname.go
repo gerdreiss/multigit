@@ -38,7 +38,7 @@ func getDefaultBranchName(repo *git.Repository) (string, error) {
 	// Fetch remote info to get HEAD
 	refs, err := remotes[0].List(&git.ListOptions{Auth: auth.GetAuthMethod(remotes[0])})
 	if err != nil {
-		// If can't list remote, try local
+		// If remote can't be listed, try local
 		return getDefaultLocalBranchName(repo)
 	}
 

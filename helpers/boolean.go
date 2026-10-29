@@ -7,9 +7,9 @@ package helpers
 func IfElse[T any](cond bool, ifTrue T, ifFalse T) T {
 	if cond {
 		return ifTrue
-	} else {
-		return ifFalse
 	}
+
+	return ifFalse
 }
 
 func IfElseLazy[T any](cond bool, ifTrue func() T, ifFalse func() T) T {

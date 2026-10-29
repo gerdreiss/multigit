@@ -29,12 +29,11 @@ func PullRepos(rootDir string, checkoutDefault bool, force bool, exclude []strin
 		if e != nil {
 			return nil
 		}
-
 		if i.IsDir() {
-			return git.GitPullWithOptions(repoPath, checkoutDefault, force)
-		} else {
-			return nil
+			return git.PullWithOptions(repoPath, checkoutDefault, force)
 		}
+
+		return nil
 	})
 	if err != nil {
 		fmt.Printf("❌ Error pulling GIT repositories in %q: %v\n", rootDir, err)

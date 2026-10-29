@@ -24,27 +24,27 @@ func PurgeLocalBranches(repoPath string, exclude []string) error {
 
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ failed to open repo %s: %v\n", repoName, err)
+		_, _ = fmt.Fprintf(os.Stderr, "❌ failed to open repo %s: %v\n", repoName, err)
 		return nil
 	}
 
 	// Get current currentBranch name
 	currentBranch, err := getCurrentBranchName(repo)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ Failed to determine the current branch name for %s: %v\n", repoName, err)
+		_, _ = fmt.Fprintf(os.Stderr, "❌ Failed to determine the current branch name for %s: %v\n", repoName, err)
 		return nil
 	}
 
 	// Get the local branches including the current branch
 	localBranches, err := getLocalBranchNames(repo)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ Failed to determine the local branches for %s: %v\n", repoName, err)
+		_, _ = fmt.Fprintf(os.Stderr, "❌ Failed to determine the local branches for %s: %v\n", repoName, err)
 		localBranches = []string{}
 	}
 
 	remoteBranches, err := getRemoteBranchNames(repo)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ Failed to determine the remote branches of repository %s: %v\n", repoName, err)
+		_, _ = fmt.Fprintf(os.Stderr, "❌ Failed to determine the remote branches of repository %s: %v\n", repoName, err)
 		return nil
 	}
 
@@ -56,7 +56,7 @@ func PurgeLocalBranches(repoPath string, exclude []string) error {
 		if helpers.SureToProceed("⚠️ The branch %s is about to be deleted. Proceed? (N/y) ", localBranch) {
 			err = repo.Storer.RemoveReference(plumbing.NewBranchReferenceName(localBranch))
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "❌ Failed to delete branch %s of repository %s: %v\n", localBranch, repoName, err)
+				_, _ = fmt.Fprintf(os.Stderr, "❌ Failed to delete branch %s of repository %s: %v\n", localBranch, repoName, err)
 				return nil
 			}
 		}

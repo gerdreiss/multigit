@@ -17,7 +17,7 @@ func checkoutBranch(repo *git.Repository, branchName string, force bool) error {
 	// Get the worktree
 	worktree, err := repo.Worktree()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ failed to get worktree for %v: %v\n", repo, err)
+		_, _ = fmt.Fprintf(os.Stderr, "❌ failed to get worktree for %v: %v\n", repo, err)
 		return nil
 	}
 
@@ -31,7 +31,7 @@ func checkoutBranch(repo *git.Repository, branchName string, force bool) error {
 	}
 	err = worktree.Checkout(&opts)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "❌ failed to checkout branch '%s': %v\n", branchName, err)
+		_, _ = fmt.Fprintf(os.Stderr, "❌ failed to checkout branch '%s': %v\n", branchName, err)
 		return nil
 	}
 
